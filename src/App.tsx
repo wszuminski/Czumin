@@ -3,7 +3,7 @@ import { LoadingScreen } from "./components/LoadingScreen";
 import { useFirstVisit } from "./components/hooks/useFirstVisit";
 import { initApp } from "./lib/initApp";
 
-import { DemoOne } from "./components/Hero";
+import GrokHero from "./components/ui/bggrok";
 
 export default function App() {
   const { isFirstVisit } = useFirstVisit();
@@ -20,7 +20,7 @@ export default function App() {
     <div className="min-h-dvh bg-[#F8F6F0] text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       {/* First-visit loader overlay */}
       {showIntro && <LoadingScreen />}
-      <DemoOne />
+      <GrokHero />
     </div>
   );
 }

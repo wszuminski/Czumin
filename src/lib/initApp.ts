@@ -8,7 +8,7 @@ export async function initApp() {
   }
 
   // Example: artificial minimum so the loader isn’t a “flash”
-  const minimum = new Promise((res) => setTimeout(res, 500));
+  const minimum = new Promise((res) => setTimeout(res, 2000));
 
   await Promise.allSettled([minimum, ...tasks]);
 }
