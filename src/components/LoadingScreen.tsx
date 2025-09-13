@@ -1,60 +1,141 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
 
-type Props = {
-  onSkip?: () => void;
-};
+export function LoadingScreen() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<{
+    camera: THREE.Camera;
+    scene: THREE.Scene;
+    renderer: THREE.WebGLRenderer;
+    uniforms: any;
+    animationId: number;
+  } | null>(null);
 
-export default function LoadingScreen({ onSkip }: Props) {
-  const [isFadingOut, setIsFadingOut] = useState(false);
-
-  // Allow Escape to skip (accessibility & dev convenience)
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && onSkip) onSkip();
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+
+    // Vertex shader
+    const vertexShader = `
+      void main() {
+        gl_Position = vec4( position, 1.0 );
+      }
+    `;
+
+    // Fragment shader
+    const fragmentShader = `
+      #define TWO_PI 6.2831853072
+      #define PI 3.14159265359
+
+      precision highp float;
+      uniform vec2 resolution;
+      uniform float time;
+
+      void main(void) {
+        vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+        float t = time*0.05;
+        float lineWidth = 0.002;
+
+        vec3 color = vec3(0.0);
+        for(int j = 0; j < 3; j++){
+          for(int i=0; i < 5; i++){
+            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+          }
+        }
+        
+        gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+      }
+    `;
+
+    // Initialize Three.js scene
+    const camera = new THREE.Camera();
+    camera.position.z = 1;
+
+    const scene = new THREE.Scene();
+    const geometry = new THREE.PlaneGeometry(2, 2);
+
+    const uniforms = {
+      time: { type: "f", value: 1.0 },
+      resolution: { type: "v2", value: new THREE.Vector2() },
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onSkip]);
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    container.appendChild(renderer.domElement);
+
+    // Handle window resize
+    const onWindowResize = () => {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      renderer.setSize(width, height);
+      uniforms.resolution.value.x = renderer.domElement.width;
+      uniforms.resolution.value.y = renderer.domElement.height;
+    };
+
+    // Initial resize
+    onWindowResize();
+    window.addEventListener("resize", onWindowResize, false);
+
+    // Animation loop
+    const animate = () => {
+      const animationId = requestAnimationFrame(animate);
+      uniforms.time.value += 0.05;
+      renderer.render(scene, camera);
+
+      if (sceneRef.current) {
+        sceneRef.current.animationId = animationId;
+      }
+    };
+
+    // Store scene references for cleanup
+    sceneRef.current = {
+      camera,
+      scene,
+      renderer,
+      uniforms,
+      animationId: 0,
+    };
+
+    // Start animation
+    animate();
+
+    // Cleanup function
+    return () => {
+      window.removeEventListener("resize", onWindowResize);
+
+      if (sceneRef.current) {
+        cancelAnimationFrame(sceneRef.current.animationId);
+
+        if (container && sceneRef.current.renderer.domElement) {
+          container.removeChild(sceneRef.current.renderer.domElement);
+        }
+
+        sceneRef.current.renderer.dispose();
+        geometry.dispose();
+        material.dispose();
+      }
+    };
+  }, []);
 
   return (
     <div
-      role="status"
-      aria-live="polite"
-      aria-busy="true"
-      className={[
-        "fixed inset-0 z-[9999] flex flex-col items-center justify-center",
-        "bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100",
-        "motion-safe:animate-fade-in",
-        isFadingOut ? "motion-safe:animate-fade-out" : "",
-      ].join(" ")}
-      // If you want to trigger manual fade-out from parent, expose a ref or prop.
-    >
-      {/* Logo / mark */}
-      <div className="mb-6">
-        {/* Replace with your SVG/IMG */}
-        <div className="h-12 w-12 rounded-2xl bg-neutral-900 dark:bg-neutral-100" />
-      </div>
-
-      {/* Spinner */}
-      <div
-        aria-hidden="true"
-        className="h-8 w-8 rounded-full border-2 border-neutral-300 dark:border-neutral-700 border-t-transparent animate-spin"
-      />
-
-      <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
-        Loading your experience…
-      </p>
-
-      {/* Optional skip for accessibility */}
-      {onSkip && (
-        <button
-          type="button"
-          onClick={() => setIsFadingOut(true) || onSkip()}
-          className="mt-6 rounded-full border px-3 py-1 text-xs hover:bg-neutral-50 dark:hover:bg-neutral-900"
-        >
-          Skip
-        </button>
-      )}
-    </div>
+      ref={containerRef}
+      className="w-full h-screen"
+      style={{
+        background: "#000",
+        overflow: "hidden",
+      }}
+    />
   );
 }
