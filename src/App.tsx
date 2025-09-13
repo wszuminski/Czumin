@@ -6,7 +6,7 @@ import { initApp } from "./lib/initApp";
 import { DemoOne } from "./components/Hero";
 
 export default function App() {
-  const { isFirstVisit, dismiss } = useFirstVisit();
+  const { isFirstVisit } = useFirstVisit();
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
