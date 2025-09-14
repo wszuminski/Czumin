@@ -4,6 +4,7 @@ import { useFirstVisit } from "./components/hooks/useFirstVisit";
 import { initApp } from "./lib/initApp";
 
 import GrokHero from "./components/ui/bggrok";
+import { RadialCaseStudy } from "./components/RadialCaseStudy";
 
 export default function App() {
   const { isFirstVisit } = useFirstVisit();
@@ -21,6 +22,7 @@ export default function App() {
       {/* First-visit loader overlay */}
       {showIntro && <LoadingScreen />}
       <GrokHero />
+      <RadialCaseStudy />
     </div>
   );
 }

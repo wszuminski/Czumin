@@ -2,10 +2,7 @@ import type { FC } from "react";
 
 const RightBloom: FC = () => {
   return (
-    <div
-      aria-hidden
-      className="absolute inset-0 z-10 pointer-events-none mix-blend-screen"
-    >
+    <div aria-hidden className="absolute inset-0 -z-10">
       <div
         className="pointer-events-none absolute right-[-25vw] top-[-10vh] h-[140vh] w-[85vw] blur-3xl"
         style={{

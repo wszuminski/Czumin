@@ -9,7 +9,7 @@ export default function GrokHero() {
     <section className="relative min-h-screen w-full overflow-hidden bg-black text-white">
       <BackgroundBase />
       <RightBloom />
-      <NebulaBackground />
+      <NebulaBackground fadeTop={64} fadeBottom={72} />
       <TopNav />
       <BigTitle />
       {/* Bottom left chevron */}
@@ -33,4 +33,3 @@ export default function GrokHero() {
     </section>
   );
 }
-

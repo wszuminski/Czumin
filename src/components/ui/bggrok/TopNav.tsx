@@ -12,13 +12,15 @@ const TopNav: FC = () => {
           </div>
           {/* Links */}
           <nav className="hidden gap-6 text-sm text-white/70 md:flex">
-            {["GROK", "API", "COMPANY", "COLOSSUS", "CAREERS", "NEWS"].map(
-              (x) => (
-                <a key={x} href="#" className="hover:text-white transition-colors">
-                  {x}
-                </a>
-              )
-            )}
+            {["CASESTUDY", "KONTAKT"].map((x) => (
+              <a
+                key={x}
+                href="#"
+                className="hover:text-white transition-colors"
+              >
+                {x}
+              </a>
+            ))}
           </nav>
         </div>
         <div className="flex items-center gap-3">
@@ -26,7 +28,7 @@ const TopNav: FC = () => {
             href="#"
             className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white/90 backdrop-blur hover:bg-white/15"
           >
-            TRY GROK
+            Skontaktuj się
           </a>
         </div>
       </div>
@@ -35,4 +37,3 @@ const TopNav: FC = () => {
 };
 
 export default TopNav;
-

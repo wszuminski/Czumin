@@ -1,28 +1,40 @@
+// NebulaBackground.tsx
 import { useEffect, useRef } from "react";
 import type { FC } from "react";
 import { Renderer, Program, Mesh, Triangle, Vec3 } from "ogl";
 
-/* -------------------- GLSL: Grok-like wisps with bright right flare -------------------- */
+/* ========================= Shaders ========================= */
+
 const VERT = /* glsl */ `
   precision highp float;
   attribute vec2 position;
   attribute vec2 uv;
   varying vec2 vUv;
-  void main(){
+  void main() {
     vUv = uv;
     gl_Position = vec4(position, 0.0, 1.0);
   }
 `;
 
-// Tuned to resemble the Grok landing hero: very dark left, intense white/blue flare on the right,
-// slow cloudy motion, subtle streaking around the light source, and gentle vignette.
+// Grok-like wedge; right-side glow shifted to bluish–purple.
+// Band grows with x and can be curved/tilted via uniforms.
 const FRAG = /* glsl */ `
   precision highp float;
   varying vec2 vUv;
   uniform float iTime;
-  uniform vec3 iResolution; // (w, h, aspect)
+  uniform vec3  iResolution;   // (w, h, aspect)
 
-  // -------------------------------------------------- utilities
+  // --- band shape controls ---
+  uniform float uTopY;         // base top margin (normalized 0..1)
+  uniform float uBottomCap;    // max bottom (<= ~0.99)
+  uniform float uMinBandH;     // min height at x=0
+  uniform float uCurvePow;     // width growth power
+  uniform float uBandFeather;  // edge softness
+  uniform float uTopBow;       // top edge bows upward to right
+  uniform float uBotBow;       // bottom edge bows downward to right
+  uniform float uTilt;         // linear tilt (-0.2..0.2)
+
+  // -------- noise --------
   float hash(vec2 p){
     p = fract(p*vec2(123.34,456.21));
     p += dot(p,p+45.32);
@@ -42,7 +54,6 @@ const FRAG = /* glsl */ `
     for(int i=0;i<6;i++){ v+=a*noise(p); p=m*p; a*=0.5; }
     return v;
   }
-  // Domain-warped fbm for soft wisps
   float wispy(vec2 p, float t){
     vec2 q = p;
     q += 0.35*vec2(fbm(p*1.2 + vec2(0.9*t, -0.6*t)), fbm(p*1.2 - vec2(0.6*t, 0.9*t)));
@@ -51,25 +62,22 @@ const FRAG = /* glsl */ `
     return mix(n1, n2, 0.5);
   }
 
-  // Soft radial light positioned slightly off the right edge
+  // Elliptical off-canvas-ish light for the right “blob”
   float rightLight(vec2 uv){
-    // place the light slightly outside the frame so the core sits off-screen
-    vec2 lp = vec2(1.15, 0.52);
-    float d = distance(uv, lp);
-    // blend of gaussian-ish core and long tail for bloom
-    float core = exp(-pow(d*14.0, 2.0));
-    float tail = pow(max(0.0, 1.0 - d*1.15), 3.0);
-    return clamp(core*1.4 + tail*1.2, 0.0, 2.0);
+    vec2 lp = vec2(1.18, 0.50);              // push further right
+    vec2 squeeze = vec2(1.25, 0.85);         // stretch horizontally
+    float d = length((uv - lp) * squeeze);
+    float core = exp(-pow(d*10.5, 2.0));
+    float tail = pow(max(0.0, 1.0 - d*1.08), 2.8);
+    return clamp(core*1.7 + tail*1.1, 0.0, 2.0);
   }
 
-  // Directional streaking around the light (samples along the tangent)
+  // Tangential streaking around the blob
   float haloStreak(vec2 uv, vec2 st, float t){
-    vec2 lp = vec2(1.15, 0.52);
+    vec2 lp = vec2(1.18, 0.50);
     vec2 toL = uv - lp;
     vec2 tangent = normalize(vec2(-toL.y, toL.x) + 1e-5);
-    float acc = 0.0;
-    float wsum = 0.0;
-    // 5-tap directional blur with evolving offsets for motion
+    float acc = 0.0, wsum = 0.0;
     for(int i=-2;i<=2;i++){
       float fi = float(i);
       float w = 1.0 - abs(fi)/3.0;
@@ -80,80 +88,102 @@ const FRAG = /* glsl */ `
     return (acc/wsum);
   }
 
-  // Filmic-ish tonemap (ACES-ish approximation)
   vec3 tonemap(vec3 x){
     float a=2.51, b=0.03, c=2.43, d=0.59, e=0.14;
     return clamp((x*(a*x+b))/(x*(c*x+d)+e), 0.0, 1.0);
   }
 
   void main(){
-    vec2 res = iResolution.xy;
-    vec2 uv = vUv;                     // 0..1
+    vec2 uv = vUv; // 0..1
     vec2 st = (uv - 0.5);
-    st.x *= iResolution.x / max(1.0, iResolution.y); // aspect-corrected - keep shapes round
+    st.x *= iResolution.x / max(1.0, iResolution.y);
 
     float t = iTime*0.25;
 
-    // Gentle global swirl
+    // Swirl the underlying fields a bit
     float ang = 0.28 + 0.12*sin(iTime*0.6);
     float cs = cos(ang), sn = sin(ang);
     mat2 R = mat2(cs,-sn,sn,cs);
     vec2 p = R * st * 1.15;
 
-    // Wisp field (0..1)
+    // Fields
     float base = wispy(p*1.3, t);
     base = smoothstep(0.35, 0.95, base);
+    float light  = rightLight(uv);
+    float streak = smoothstep(0.45, 0.95, haloStreak(uv, p, t));
 
-    // Radial light + halo
-    float light = rightLight(uv);
+    // --- palette (bluish-purple) ---
+    vec3 deep   = vec3(0.010, 0.012, 0.040);
+    vec3 haze   = vec3(0.22, 0.28, 0.78);
+    vec3 purple = vec3(0.74, 0.60, 1.00);
 
-    // Streaking aligned around the light
-    float streak = haloStreak(uv, p*1.0, t);
-    streak = smoothstep(0.45, 0.95, streak);
-
-    // Edge vignette and stronger darkening on the far left
-    float vign = smoothstep(0.0, 0.08, uv.y) * smoothstep(1.0, 0.92, uv.y);
-    float leftDark = smoothstep(0.0, 0.55, uv.x);
-
-    // Palette: deep near-black -> cool blue -> white core
-    vec3 deep = vec3(0.005, 0.010, 0.030);
-    vec3 haze = vec3(0.22, 0.34, 0.85);
-    vec3 glow = vec3(0.95, 0.98, 1.0);
-
-    // Compose layers
     vec3 col = deep;
-    // smoky field mostly in the middle/right, softened by vignette
-    col = mix(col, haze, base * (0.6 + 0.4*vign) * (0.3 + 0.7*smoothstep(0.25, 1.0, uv.x)));
+    col = mix(col, haze, base * (0.55 + 0.45*smoothstep(0.25, 1.0, uv.x)));
+    col += purple * (light*1.25);
+    col += purple * 0.60 * streak * smoothstep(0.35, 1.0, uv.x);
 
-    // add light bloom and streaks
-    col += glow * (light*1.35);
-    col += glow * 0.55 * streak * smoothstep(0.35, 1.0, uv.x);
-
-    // reduce brightness on the extreme left to match the screenshot's deep blacks
+    // darken far left a touch
+    float leftDark = smoothstep(0.0, 0.55, uv.x);
     col *= mix(0.58, 1.0, leftDark);
-
-    // very soft fog so blacks aren't crushed near the light transition
     col += vec3(0.02) * smoothstep(0.2, 0.8, uv.x);
-
-    // tiny blue bias to shadows
     col = mix(col, vec3(0.02,0.03,0.09), 0.25*(1.0-leftDark));
 
-    // temporal pulse for breathing energy in the flare
+    // subtle breathing
     float pulse = 0.8 + 0.2*sin(iTime*0.9);
     col *= (0.96 + 0.04*pulse);
 
-    // dither to avoid banding (screen-space noise)
+    // bias bright areas toward purple so it never looks gray
+    col = mix(col, purple, clamp(light*0.18, 0.0, 0.25));
+
+    // Dither + tonemap
     float d = hash(gl_FragCoord.xy/iResolution.x);
     col += (d-0.5)/255.0;
-
     col = tonemap(col);
 
-    gl_FragColor = vec4(col, 1.0);
+    // --------- Curved, widening “wedge” band ----------
+    float maxH = clamp(uBottomCap - uTopY, 0.0, 1.0);
+    float x = clamp(uv.x, 0.0, 1.0);
+    float xk = pow(x, uCurvePow);
+    float H  = mix(uMinBandH, maxH, xk);
+
+    // gentle S-curve (can be zeroed by uniforms)
+    float bowTop = uTopBow * smoothstep(0.1, 1.0, x) * x*x;
+    float bowBot = uBotBow * smoothstep(0.0, 1.0, x);
+    float tilt   = uTilt   * (x - 0.5);
+
+    float yTop = clamp(uTopY - bowTop + tilt, 0.0, 1.0);
+    float yBot = min(yTop + H + bowBot, uBottomCap);
+
+    float aIn  = smoothstep(yTop - uBandFeather, yTop + uBandFeather, uv.y);
+    float aOut = 1.0 - smoothstep(yBot - uBandFeather, yBot + uBandFeather, uv.y);
+    float band = clamp(aIn * aOut, 0.0, 1.0);
+
+    col *= band;
+    gl_FragColor = vec4(col, band);
   }
 `;
 
-/* ----------------------- OGL-backed animated background ----------------------- */
-const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
+/* ========================= Component ========================= */
+
+type NebulaProps = {
+  className?: string;
+  /** Top fade in px (keeps effect away from the top). */
+  fadeTop?: number;
+  /** Bottom fade in px (extra safety). */
+  fadeBottom?: number;
+  /** Extra px rendered above/below section. */
+  bleed?: number;
+  /** Where along X (0..1) we sample the band to anchor the title. */
+  anchorX?: number; // default 0.5 (center)
+};
+
+const NebulaBackground: FC<NebulaProps> = ({
+  className,
+  fadeTop = 200,
+  fadeBottom = 200,
+  bleed = 0,
+  anchorX = 0.5,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const glRef = useRef<WebGLRenderingContext | WebGL2RenderingContext | null>(
@@ -163,14 +193,23 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
   const meshRef = useRef<Mesh | null>(null);
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number>(0);
-  const lastRef = useRef<number>(0);
-  const visibleRef = useRef<boolean>(true);
-  const inViewRef = useRef<boolean>(true);
+  const visibleRef = useRef(true);
+  const inViewRef = useRef(true);
+
+  // CSS mask to avoid touching top/bottom hard edges
+  const mask = `linear-gradient(
+    to bottom,
+    transparent 0px,
+    black ${fadeTop}px,
+    black calc(100% - ${fadeBottom}px),
+    transparent 100%
+  )`;
 
   useEffect(() => {
     const container = ref.current;
     if (!container) return;
 
+    // Renderer
     const renderer = new Renderer({
       alpha: true,
       premultipliedAlpha: false,
@@ -179,9 +218,11 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
+
     container.innerHTML = "";
     container.appendChild(gl.canvas);
 
+    // Geometry + program
     const geometry = new Triangle(gl);
     const program = new Program(gl, {
       vertex: VERT,
@@ -189,6 +230,18 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
       uniforms: {
         iTime: { value: 0 },
         iResolution: { value: new Vec3(1, 1, 1) },
+
+        // Wider band, almost full height on the right:
+        uTopY: { value: 0.06 }, // start closer to top
+        uBottomCap: { value: 0.0 }, // set at resize (≈0.99 after patch)
+        uMinBandH: { value: 0.36 }, // wider left (0.34–0.40)
+        uCurvePow: { value: 1.0 }, // clean linear wedge
+        uBandFeather: { value: 0.06 }, // crisp but soft enough
+
+        // Curvature/tilt (kept flat by default)
+        uTopBow: { value: 0.0 },
+        uBotBow: { value: 0.0 },
+        uTilt: { value: 0.0 },
       },
     });
     const mesh = new Mesh(gl, { geometry, program });
@@ -198,17 +251,72 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
     programRef.current = program;
     meshRef.current = mesh;
 
-    const updateResolution = () => {
+    // ---- Helpers to mirror GLSL for band Y computation ----
+    const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+    const smoothstep = (e0: number, e1: number, x: number) => {
+      const t = clamp01((x - e0) / (e1 - e0));
+      return t * t * (3 - 2 * t);
+    };
+    const computeBandY = (x: number) => {
+      const u = program.uniforms as any;
+      const uTopY = u.uTopY.value as number;
+      const uBottomCap = u.uBottomCap.value as number;
+      const uMinBandH = u.uMinBandH.value as number;
+      const uCurvePow = u.uCurvePow.value as number;
+      const uTopBow = (u.uTopBow?.value ?? 0) as number;
+      const uBotBow = (u.uBotBow?.value ?? 0) as number;
+      const uTilt = (u.uTilt?.value ?? 0) as number;
+
+      const maxH = clamp01(uBottomCap - uTopY);
+      const xk = Math.pow(clamp01(x), uCurvePow);
+      const H = uMinBandH + (maxH - uMinBandH) * xk;
+
+      const bowTop = uTopBow * smoothstep(0.1, 1.0, x) * x * x;
+      const bowBot = uBotBow * smoothstep(0.0, 1.0, x);
+      const tilt = uTilt * (x - 0.5);
+
+      const yTop = clamp01(uTopY - bowTop + tilt);
+      const yBot = Math.min(yTop + H + bowBot, uBottomCap);
+      return { yTop, yBot, yCtr: (yTop + yBot) * 0.5 };
+    };
+
+    // ---- Size & uniforms ----
+    const updateUniformsForSize = () => {
       const dw = gl.drawingBufferWidth;
       const dh = gl.drawingBufferHeight;
       program.uniforms.iResolution.value.set(dw, dh, dw / Math.max(1, dh));
+
+      // Convert px fades to normalized coords (canvas-relative)
+      const topNorm = Math.min(0.49, Math.max(0, fadeTop / Math.max(1, dh)));
+      const bottomCapNorm = Math.max(
+        0.0,
+        Math.min(0.99, 1 - fadeBottom / Math.max(1, dh) - 0.01) // ~99% minus fade
+      );
+
+      program.uniforms.uTopY.value = topNorm;
+      program.uniforms.uBottomCap.value = Math.max(
+        topNorm + 0.05,
+        bottomCapNorm
+      );
+      program.uniforms.uBandFeather.value = Math.min(
+        0.12,
+        Math.max(0.025, 0.06)
+      );
+
+      // Expose band y (px) as CSS variables on the host section
+      const host = container.parentElement ?? container;
+      const rect = container.getBoundingClientRect();
+      const { yTop, yBot, yCtr } = computeBandY(anchorX);
+      host.style.setProperty("--grok-band-top", `${yTop * rect.height}px`);
+      host.style.setProperty("--grok-band-bottom", `${yBot * rect.height}px`);
+      host.style.setProperty("--grok-band-center", `${yCtr * rect.height}px`);
     };
 
     const setSize = (w: number, h: number) => {
       renderer.setSize(Math.max(1, Math.floor(w)), Math.max(1, Math.floor(h)));
-      gl.canvas.style.width = `${w}px`;
-      gl.canvas.style.height = `${h}px`;
-      updateResolution();
+      (gl.canvas.style as any).width = `${w}px`;
+      (gl.canvas.style as any).height = `${h}px`;
+      updateUniformsForSize();
     };
 
     const ro = new ResizeObserver((entries) => {
@@ -216,9 +324,12 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
       if (r) setSize(r.width, r.height);
     });
     ro.observe(container);
-    const rect = container.getBoundingClientRect();
-    setSize(rect.width, rect.height);
 
+    // initial size
+    const rect0 = container.getBoundingClientRect();
+    setSize(rect0.width, rect0.height);
+
+    // visibility / in-view control
     const onVis = () => {
       visibleRef.current = document.visibilityState === "visible";
       if (visibleRef.current && inViewRef.current) start();
@@ -236,19 +347,16 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
     );
     io.observe(container);
 
+    // render loop
     const frame = (t: number) => {
       if (startRef.current === 0) startRef.current = t;
-      //  const dt = (t - (lastRef.current || t)) * 0.001; // reserved
-      lastRef.current = t;
       const elapsed = (t - startRef.current) * 0.001;
       program.uniforms.iTime.value = elapsed;
       renderer.render({ scene: mesh });
       rafRef.current = requestAnimationFrame(frame);
     };
-
     const start = () => {
       if (rafRef.current != null) return;
-      lastRef.current = performance.now();
       rafRef.current = requestAnimationFrame(frame);
     };
     const stop = () => {
@@ -260,6 +368,7 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
 
     start();
 
+    // cleanup
     return () => {
       stop();
       ro.disconnect();
@@ -272,12 +381,22 @@ const NebulaBackground: FC<{ className?: string }> = ({ className }) => {
       programRef.current = null;
       meshRef.current = null;
     };
-  }, []);
+  }, [fadeTop, fadeBottom, anchorX]);
 
   return (
     <div
       ref={ref}
       className={"absolute inset-0 pointer-events-none " + (className || "")}
+      style={{
+        top: -bleed,
+        bottom: -bleed,
+        WebkitMaskImage: mask as any,
+        maskImage: mask,
+        WebkitMaskRepeat: "no-repeat" as any,
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "100% 100%" as any,
+        maskSize: "100% 100%",
+      }}
     />
   );
 };
