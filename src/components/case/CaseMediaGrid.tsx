@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { caseMedia } from "../../data/case-media";
 
 interface CaseMediaGridProps {
   caseId: number;
@@ -14,10 +15,13 @@ const placeholderText = [
 ];
 
 const CaseMediaGrid: FC<CaseMediaGridProps> = ({ caseId }) => {
-  const items = Array.from({ length: 6 }, (_, i) => ({
+  const media = caseMedia[caseId] ?? [];
+  const items = (media.length
+    ? media
+    : Array.from({ length: 6 }, (_, i) => `https://picsum.photos/seed/case-${caseId}-${i + 1}/960/720`)
+  ).map((src, i) => ({
     id: i + 1,
-    // Deterministic placeholder per case + slot
-    src: `https://picsum.photos/seed/case-${caseId}-${i + 1}/960/720`,
+    src,
     alt: `Podgląd realizacji ${i + 1}`,
     description: placeholderText[i % placeholderText.length],
   }));
@@ -26,10 +30,10 @@ const CaseMediaGrid: FC<CaseMediaGridProps> = ({ caseId }) => {
     <section className="relative">
       {/* Background glow */}
       <div className="pointer-events-none absolute -inset-x-8 -top-6 -bottom-10 opacity-25">
-        <div className="mx-auto h-full max-w-6xl bg-gradient-to-b from-indigo-500/20 via-violet-500/10 to-blue-500/0 blur-3xl" />
+        <div className="mx-auto h-full max-w-7xl bg-gradient-to-b from-indigo-500/20 via-violet-500/10 to-blue-500/0 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto w-full max-w-5xl">
+      <div className="relative mx-auto w-full max-w-7xl">
         <h2 className="mb-6 text-lg font-medium text-white/90">
           Realizacje w ramach projektu
         </h2>

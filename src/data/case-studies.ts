@@ -1,6 +1,3 @@
-import type { ElementType } from "react";
-import { Calendar, Clock, Code, FileText, User } from "lucide-react";
-
 export type CaseStudyStatus = "completed" | "in-progress" | "pending";
 
 export interface CaseStudy {
@@ -9,7 +6,7 @@ export interface CaseStudy {
   date: string;
   content: string;
   category: string;
-  icon: ElementType;
+  logo: string;
   relatedIds: number[];
   status: CaseStudyStatus;
   energy: number;
@@ -22,7 +19,7 @@ export const caseStudies: CaseStudy[] = [
     date: "Czerwiec 2025",
     content: "Projekt dla trenera personalnego",
     category: "Planning",
-    icon: Calendar,
+    logo: "/LogoArtur.png",
     relatedIds: [],
     status: "completed",
     energy: 100,
@@ -33,7 +30,7 @@ export const caseStudies: CaseStudy[] = [
     date: "Lipiec 2025",
     content: "Projekt dla studia treningowego",
     category: "Design",
-    icon: FileText,
+    logo: "/LogoJakub.svg",
     relatedIds: [],
     status: "completed",
     energy: 90,
@@ -44,7 +41,7 @@ export const caseStudies: CaseStudy[] = [
     date: "Wrzesień 2025",
     content: "Projekt dla trenera z systemem płatności",
     category: "Development",
-    icon: Code,
+    logo: "/Logo.png",
     relatedIds: [],
     status: "completed",
     energy: 100,
@@ -55,7 +52,7 @@ export const caseStudies: CaseStudy[] = [
     date: "Sierpień 2025",
     content: "Projekt dla trenera z niestandardowym designem",
     category: "Testing",
-    icon: User,
+    logo: "/LogoMarcel.png",
     relatedIds: [],
     status: "completed",
     energy: 100,
@@ -66,7 +63,7 @@ export const caseStudies: CaseStudy[] = [
     date: "Sierpień 2025",
     content: "Projekt dla trenera z focusem na sprzedaż",
     category: "Release",
-    icon: Clock,
+    logo: "/LogoBartek.png",
     relatedIds: [],
     status: "completed",
     energy: 100,

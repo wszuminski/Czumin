@@ -9,10 +9,7 @@ const TopNav: FC = () => {
       <div className="container flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-8">
           {/* Logo */}
-          <div className="h-8 w-8 rounded bg-white/10 ring-1 ring-white/15 flex items-center justify-center">
-            <span className="sr-only">xAI</span>
-            <div className="h-4 w-4 rotate-45 bg-white" />
-          </div>
+          <img src="/logo.czumin.png" alt="logo" className="w-12 h-12 rounded-full object-center object-cover" />
           {/* Links */}
           <nav className="hidden gap-6 text-sm text-white/70 md:flex">
             {["CASESTUDY", "KONTAKT"].map((x) => (

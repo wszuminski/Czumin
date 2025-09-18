@@ -1,7 +1,11 @@
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import TopNav from "../components/ui/bggrok/TopNav";
 import Footer from "../components/layout/Footer";
+import { Button } from "../components/ui/button";
 
 export function PrivacyPolicyPage() {
+  const navigate = useNavigate();
   const sections = [
     { id: "wstep", title: "Wstęp" },
     { id: "administrator", title: "Administrator danych" },
@@ -18,6 +22,16 @@ export function PrivacyPolicyPage() {
       <TopNav />
 
       <div className="container px-4 pt-24 pb-16">
+        <div className="mb-6">
+          <Button
+            variant="ghost"
+            className="text-white hover:bg-white/10"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Powrót
+          </Button>
+        </div>
+
         <header className="mb-8">
           <h1 className="text-2xl font-semibold">Polityka prywatności</h1>
           <p className="mt-2 text-sm text-white/60">Ostatnia aktualizacja: 01.09.2025</p>

@@ -12,6 +12,10 @@ interface RadialOrbitalTimelineProps {
 }
 
 const normalizeAngle = (a: number) => ((a % 360) + 360) % 360; // FIX: prevent negative angles
+const NODE_SIZE_MULTIPLIER = 1.5;
+const CENTER_CORE_SCALE = 1.5;
+const CENTER_GLOW_SCALE = 2.2;
+const CENTER_INNER_SCALE = 1.05;
 
 export default function RadialOrbitalTimeline({
   timelineData,
@@ -28,7 +32,7 @@ export default function RadialOrbitalTimeline({
 
   // responsive radius + sizing
   const [radius, setRadius] = useState<number>(180);
-  const [nodeSize, setNodeSize] = useState<number>(40);
+  const [nodeSize, setNodeSize] = useState<number>(40 * NODE_SIZE_MULTIPLIER);
   const [orbitPadding, setOrbitPadding] = useState<number>(24);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -129,20 +133,20 @@ export default function RadialOrbitalTimeline({
       const baseRadius = Math.max(80, Math.floor((minDim - 2 * orbitPadding) / 2) - 40);
 
       let r = baseRadius;
-      let dot = 40;
+      let dot = 52;
       if (isMobile) {
-        r = Math.min(baseRadius, 120);
-        dot = 32;
+        r = Math.min(baseRadius, 110);
+        dot = 42;
       } else if (isTablet) {
-        r = Math.min(baseRadius, 160);
-        dot = 36;
+        r = Math.min(baseRadius, 150);
+        dot = 48;
       } else {
         r = Math.min(baseRadius, 200);
-        dot = 40;
+        dot = 56;
       }
 
       setRadius(r);
-      setNodeSize(dot);
+      setNodeSize(dot * NODE_SIZE_MULTIPLIER);
     };
 
     computeSizes();
@@ -203,11 +207,17 @@ export default function RadialOrbitalTimeline({
 
   return (
     <div
-      className="w-full min-h-dvh flex flex-col items-center justify-center bg-black overflow-hidden"
+      className="w-full min-h-dvh flex flex-col justify-start bg-black overflow-hidden"
       ref={containerRef}
       onClick={handleContainerClick}
     >
-      <div className="relative w-full max-w-4xl h-full flex items-center justify-center px-3">
+      {/* Section heading placed high at the start */}
+      <div className="container text-center pt-20 sm:pt-24 pb-4 px-4">
+        <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">Wybrane realizacje</h2>
+        <p className="mt-2 text-xl sm:text-2xl text-white/70">Jedno zdanie o projektach — klarownie i konkretnie.</p>
+      </div>
+
+      <div className="relative w-full max-w-4xl flex-1 mx-auto flex items-center justify-center px-3">
         <div
           className="absolute inset-0 flex items-center justify-center"
           ref={orbitRef}
@@ -219,32 +229,42 @@ export default function RadialOrbitalTimeline({
             transformStyle: "preserve-3d",
           }}
         >
-          {/* core (centered) */}
+          {/* core (centered) — refined, no white center */}
           <div
             className="absolute rounded-full flex items-center justify-center z-10 shadow-[0_0_60px_rgba(99,102,241,0.35)]"
             style={{
-              top: "50%", left: "50%", transform: "translate(-50%, -50%)", // FIX: center anchor
-              width: nodeSize * 1.8,
-              height: nodeSize * 1.8,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: nodeSize * CENTER_CORE_SCALE,
+              height: nodeSize * CENTER_CORE_SCALE,
               background:
-                "conic-gradient(from 0deg, rgba(99,102,241,0.65), rgba(168,85,247,0.65), rgba(56,189,248,0.65), rgba(99,102,241,0.65))",
+                "conic-gradient(from 0deg, rgba(99,102,241,0.6), rgba(168,85,247,0.55), rgba(56,189,248,0.55), rgba(99,102,241,0.6))",
               boxShadow:
-                "inset 0 0 18px rgba(255,255,255,0.25), 0 0 36px rgba(56,189,248,0.15)",
+                "inset 0 0 14px rgba(255,255,255,0.12), 0 0 30px rgba(56,189,248,0.18)",
             }}
           >
             <div
               className="absolute rounded-full"
               style={{
-                width: nodeSize * 2.3,
-                height: nodeSize * 2.3,
+                width: nodeSize * CENTER_GLOW_SCALE,
+                height: nodeSize * CENTER_GLOW_SCALE,
                 background:
-                  "radial-gradient(circle, rgba(99,102,241,0.25) 0%, rgba(99,102,241,0) 60%)",
-                filter: "blur(1px)",
+                  "radial-gradient(circle at center, rgba(99,102,241,0.18), rgba(56,189,248,0) 60%)",
+                filter: "blur(2px)",
               }}
             />
             <div
-              className="rounded-full backdrop-blur-md ring-1 ring-white/30"
-              style={{ width: nodeSize * 0.85, height: nodeSize * 0.85, background: "rgba(255,255,255,0.9)" }}
+              className="rounded-full"
+              style={{
+                width: nodeSize * CENTER_INNER_SCALE,
+                height: nodeSize * CENTER_INNER_SCALE,
+                border: "1px solid rgba(255,255,255,0.25)",
+                boxShadow:
+                  "inset 0 0 22px rgba(99,102,241,0.35), 0 0 22px rgba(56,189,248,0.2)",
+                background:
+                  "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0) 70%)",
+              }}
             />
           </div>
 
@@ -267,7 +287,7 @@ export default function RadialOrbitalTimeline({
             const isExpanded = expandedItems[item.id];
             const isRelated = isRelatedToActive(item.id);
             const isPulsing = pulseEffect[item.id];
-            const Icon = item.icon;
+            const logoPadding = Math.max(2, Math.floor(nodeSize * 0.08));
 
             const nodeStyle = {
               top: "50%", left: "50%", // FIX: center anchor
@@ -286,7 +306,15 @@ export default function RadialOrbitalTimeline({
               height: nodeSize,
             } as const;
 
-            const aura = Math.min(60, nodeSize + item.energy * 0.35);
+            const baseAura = Math.min(80 * NODE_SIZE_MULTIPLIER, nodeSize + item.energy * 0.45);
+            const auraSize = isExpanded
+              ? Math.min(baseAura * 1.4, nodeSize * 2.6)
+              : baseAura;
+            const auraBackground = isExpanded
+              ? "radial-gradient(circle, rgba(168,85,247,0.45) 0%, rgba(129,140,248,0.22) 45%, rgba(56,189,248,0.12) 70%, rgba(17,24,39,0) 90%)"
+              : isRelated
+              ? "radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0) 80%)"
+              : "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)";
 
             return (
               <div
@@ -300,34 +328,46 @@ export default function RadialOrbitalTimeline({
                 }}
               >
                 <div
-                  className={`absolute rounded-full -inset-1 ${isPulsing ? "animate-pulse duration-1000" : ""}`}
+                  className={`absolute rounded-full pointer-events-none ${isPulsing ? "animate-pulse duration-1000" : ""}`}
                   style={{
-                    background: `radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%)`,
-                    width: aura,
-                    height: aura,
-                    left: -(aura - nodeSize) / 2,
-                    top: -(aura - nodeSize) / 2,
+                    background: auraBackground,
+                    width: auraSize,
+                    height: auraSize,
+                    left: -(auraSize - nodeSize) / 2,
+                    top: -(auraSize - nodeSize) / 2,
                   }}
                 />
 
                 <div
-                  className={`rounded-full flex items-center justify-center 
-                  ${isExpanded ? "bg-white text-black" : isRelated ? "bg-white/50 text-black" : "bg-black text-white"}
-                  border-2 
-                  ${isExpanded ? "border-white shadow-lg shadow-white/30" : isRelated ? "border-white animate-pulse" : "border-white/40"}
-                  transition-transform duration-300`} // keep transform transition for expand only
+                  className={`rounded-full flex items-center justify-center border-2 transition-transform duration-300 overflow-hidden
+                  ${isExpanded
+                    ? "bg-black text-white border-violet-200 shadow-[0_0_35px_rgba(168,85,247,0.55)]"
+                    : isRelated
+                    ? "bg-white/50 text-black border-white animate-pulse"
+                    : "bg-black text-white border-white/40"}
+                  `} // keep transform transition for expand only
                   style={{ ...dotStyle, transform: `scale(${isExpanded ? expandedScale : 1})` }}
                 >
-                  <Icon size={Math.max(12, Math.floor(nodeSize * 0.4))} />
+                  <img
+                    src={item.logo}
+                    alt={`${item.title} logo`}
+                    style={{ padding: logoPadding, boxSizing: "border-box" }}
+                    className="pointer-events-none select-none h-full w-full rounded-full object-contain"
+                    draggable={false}
+                  />
                 </div>
 
                 <div
                   className={`
                   absolute whitespace-nowrap text-[10px] sm:text-xs font-semibold tracking-wider
                   transition-all duration-300
-                  ${isExpanded ? "text-white scale-110" : "text-white/70"}
+                  ${isExpanded ? "text-white" : "text-white/70"}
                 `}
-                  style={{ top: labelOffsetTop }}
+                  style={{
+                    top: labelOffsetTop,
+                    opacity: isExpanded ? 0 : 1,
+                    transform: `translateY(${isExpanded ? 8 : 0}px)`
+                  }}
                 >
                   {item.title}
                 </div>

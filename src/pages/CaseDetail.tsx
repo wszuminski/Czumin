@@ -135,8 +135,6 @@ export function CaseDetailPage() {
     );
   }
 
-  const Icon = caseStudy.icon;
-
   const relatedItems = caseStudy.relatedIds
     .map((relatedId) => caseStudies.find((item) => item.id === relatedId))
     .filter(Boolean) as CaseStudy[];
@@ -161,8 +159,14 @@ export function CaseDetailPage() {
         <Card className="border-white/10 bg-white/5 text-white shadow-2xl">
           <CardHeader className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10">
-                <Icon className="h-6 w-6" />
+              <span className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/10 overflow-hidden">
+                <img
+                  src={caseStudy.logo}
+                  alt={`${caseStudy.title} logo`}
+                  className="h-full w-full rounded-full object-contain"
+                  style={{ padding: 6, boxSizing: "border-box" }}
+                  draggable={false}
+                />
               </span>
               <div>
                 <CardTitle className="text-white text-2xl sm:text-3xl">
