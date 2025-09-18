@@ -4,7 +4,9 @@ import { caseStudies } from "../data/case-studies";
 export function RadialCaseStudy() {
   return (
     <>
-      <RadialOrbitalTimeline timelineData={caseStudies} />
+    <div id="case-study">
+      <RadialOrbitalTimeline timelineData={caseStudies}  />
+      </div>
     </>
   );
 }

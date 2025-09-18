@@ -13,9 +13,8 @@ interface RadialOrbitalTimelineProps {
 
 const normalizeAngle = (a: number) => ((a % 360) + 360) % 360; // FIX: prevent negative angles
 const NODE_SIZE_MULTIPLIER = 1.5;
-const CENTER_CORE_SCALE = 1.5;
+const CENTER_CORE_SCALE = 0.75;
 const CENTER_GLOW_SCALE = 2.2;
-const CENTER_INNER_SCALE = 1.05;
 
 export default function RadialOrbitalTimeline({
   timelineData,
@@ -247,23 +246,14 @@ export default function RadialOrbitalTimeline({
             <div
               className="absolute rounded-full"
               style={{
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
                 width: nodeSize * CENTER_GLOW_SCALE,
                 height: nodeSize * CENTER_GLOW_SCALE,
                 background:
                   "radial-gradient(circle at center, rgba(99,102,241,0.18), rgba(56,189,248,0) 60%)",
                 filter: "blur(2px)",
-              }}
-            />
-            <div
-              className="rounded-full"
-              style={{
-                width: nodeSize * CENTER_INNER_SCALE,
-                height: nodeSize * CENTER_INNER_SCALE,
-                border: "1px solid rgba(255,255,255,0.25)",
-                boxShadow:
-                  "inset 0 0 22px rgba(99,102,241,0.35), 0 0 22px rgba(56,189,248,0.2)",
-                background:
-                  "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06), rgba(0,0,0,0) 70%)",
               }}
             />
           </div>

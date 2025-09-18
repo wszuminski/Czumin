@@ -4,7 +4,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 const Footer: FC = () => {
   const navigate = useNavigate();
   return (
-    <footer className="relative border-t border-white/10 bg-black/90 text-white">
+    <footer className="relative mt-16 border-t border-white/10 bg-black/90 text-white sm:mt-24">
       {/* subtle top gradient accent */}
       <div className="pointer-events-none absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-indigo-500/60 via-violet-500/60 to-blue-500/60" />
       <div className="container w-full px-4 py-10">
