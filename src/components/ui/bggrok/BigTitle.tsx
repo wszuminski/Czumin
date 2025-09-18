@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import CTAHeroButton from "../ctaherobutton";
 
 interface BigTitleProps {
   onContactClick?: () => void;
@@ -25,13 +26,11 @@ const BigTitle: FC<BigTitleProps> = ({ onContactClick }) => {
             Projektujemy i wdrażamy doświadczenia cyfrowe, które łączą świetny design z mierzalnymi
             efektami. Od pierwszej koncepcji po wsparcie po starcie działamy jako Twój partner w rozwoju.
           </p>
-          <button
-            type="button"
+          <CTAHeroButton
             onClick={onContactClick}
-            className="pointer-events-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-[0_20px_60px_rgba(99,102,241,0.35)] transition-transform hover:scale-[1.03] hover:shadow-[0_24px_70px_rgba(129,140,248,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-black"
-          >
-            Porozmawiajmy
-          </button>
+            className="pointer-events-auto"
+            label="Porozmawiajmy"
+          />
         </div>
       </div>
     </div>

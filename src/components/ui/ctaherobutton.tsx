@@ -1,18 +1,17 @@
+//@ts-nocheck
 import { useRef, useState } from "react";
+
 import { motion } from "framer-motion";
 
 const Component = () => {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-8">
-      <div className="space-y-8">
-        <EncryptButton />
-
-      </div>
+    <div>
+      <EncryptButton />
     </div>
   );
 };
 
-const TARGET_TEXT = "SECURED DATA";
+const TARGET_TEXT = "KONTAKT";
 const CYCLES_PER_LETTER = 3;
 const SHUFFLE_TIME = 30;
 const CHARS = "!@#$%^&*():{};|,.<>/?ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -65,34 +64,35 @@ const EncryptButton = () => {
         className="absolute inset-0 rounded-2xl blur-xl opacity-75"
         animate={{
           background: isHovered
-            ? "linear-gradient(45deg, #8b5cf6, #06b6d4, #10b981, #8b5cf6)"
-            : "linear-gradient(45deg, #374151, #4b5563, #6b7280, #374151)",
+            ? "linear-gradient(45deg, #e879f9, #ec4899, #8b5cf6, #818cf8, #e879f9)"
+            : "linear-gradient(45deg, #1e1b4b, #312e81, #4c1d95, #1e1b4b)",
         }}
         transition={{ duration: 0.6 }}
         style={{
           backgroundSize: "300% 300%",
         }}
       />
-      
+
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.98 }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="relative group overflow-hidden rounded-2xl bg-slate-800/90 backdrop-blur-sm border border-slate-600/50 px-8 py-4 shadow-2xl transition-all duration-300"
+        className="relative group overflow-hidden rounded-2xl bg-black/80 backdrop-blur-sm border border-purple-500/30 px-8 py-4 shadow-2xl transition-all duration-300"
         style={{
           boxShadow: isHovered
-            ? "0 0 50px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
-            : "0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            ? "0 0 60px rgba(236, 72, 153, 0.5), 0 0 100px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+            : "0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
         }}
       >
         {/* Animated border gradient */}
         <motion.div
           className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           style={{
-            background: "linear-gradient(45deg, #8b5cf6, #06b6d4, #10b981, #f59e0b)",
+            background:
+              "linear-gradient(45deg, #e879f9, #ec4899, #8b5cf6, #818cf8, #06b6d4)",
             backgroundSize: "300% 300%",
-            padding: "1px",
+            padding: "2px",
           }}
           animate={{
             backgroundPosition: isHovered ? "0% 0%" : "100% 100%",
@@ -103,7 +103,7 @@ const EncryptButton = () => {
             repeatType: "reverse",
           }}
         >
-          <div className="w-full h-full bg-slate-800/90 rounded-2xl" />
+          <div className="w-full h-full bg-black/90 rounded-2xl" />
         </motion.div>
 
         {/* Main content */}
@@ -122,7 +122,9 @@ const EncryptButton = () => {
               viewBox="0 0 24 24"
               fill="none"
               className={`transition-colors duration-300 ${
-                isHovered ? "text-cyan-400" : "text-slate-300"
+                isHovered
+                  ? "text-pink-400 drop-shadow-[0_0_10px_rgba(236,72,153,0.8)]"
+                  : "text-purple-300"
               }`}
             >
               <path
@@ -154,11 +156,16 @@ const EncryptButton = () => {
           {/* Text with improved typography */}
           <span
             className={`font-mono text-lg font-bold tracking-wider transition-all duration-300 ${
-              isHovered 
-                ? "text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400" 
-                : "text-slate-200"
+              isHovered
+                ? "text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-indigo-400 drop-shadow-[0_0_20px_rgba(236,72,153,0.5)]"
+                : "text-purple-200"
             }`}
-            style={{ fontFamily: "JetBrains Mono, Consolas, monospace" }}
+            style={{
+              fontFamily: "JetBrains Mono, Consolas, monospace",
+              textShadow: isHovered
+                ? "0 0 20px rgba(236, 72, 153, 0.8)"
+                : "none",
+            }}
           >
             {text}
           </span>
@@ -169,7 +176,7 @@ const EncryptButton = () => {
           className="absolute inset-0 pointer-events-none"
           animate={{
             background: isHovered
-              ? "radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 70%)"
+              ? "radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 70%)"
               : "transparent",
           }}
           transition={{ duration: 0.3 }}
@@ -185,7 +192,10 @@ const EncryptButton = () => {
           transition={{ duration: 0.3 }}
         >
           <motion.div
-            className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+            className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-fuchsia-400 to-transparent"
+            style={{
+              boxShadow: "0 0 20px rgba(236, 72, 153, 0.8)",
+            }}
             animate={{
               y: isHovered ? [0, 80, 0] : 0,
               opacity: isHovered ? [0, 1, 0] : 0,
@@ -203,14 +213,19 @@ const EncryptButton = () => {
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 bg-cyan-400 rounded-full opacity-0"
+          className="absolute w-1 h-1 rounded-full opacity-0"
           style={{
             left: `${20 + i * 10}%`,
             top: `${30 + (i % 3) * 20}%`,
+            background: i % 2 === 0 ? "#ec4899" : "#818cf8",
+            boxShadow:
+              i % 2 === 0
+                ? "0 0 10px rgba(236, 72, 153, 0.8)"
+                : "0 0 10px rgba(129, 140, 248, 0.8)",
           }}
           animate={{
             opacity: isHovered ? [0, 1, 0] : 0,
-            scale: isHovered ? [0, 1, 0] : 0,
+            scale: isHovered ? [0, 1.5, 0] : 0,
             y: isHovered ? [0, -20, 0] : 0,
           }}
           transition={{
