@@ -1,8 +1,10 @@
-import { useState, type FC } from "react";
-import ContactModal from "../../ContactModal";
+import type { FC } from "react";
 
-const TopNav: FC = () => {
-  const [open, setOpen] = useState(false);
+interface TopNavProps {
+  onContactClick?: () => void;
+}
+
+const TopNav: FC<TopNavProps> = ({ onContactClick }) => {
 
   return (
     <div className="pointer-events-auto absolute inset-x-0 top-0 z-20">
@@ -26,14 +28,13 @@ const TopNav: FC = () => {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={onContactClick}
             className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white/90 backdrop-blur hover:bg-white/15"
           >
             Skontaktuj się
           </button>
         </div>
       </div>
-      <ContactModal open={open} onClose={() => setOpen(false)} />
     </div>
   );
 };

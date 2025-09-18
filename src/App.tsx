@@ -18,17 +18,25 @@ export default function App() {
   }, []);
 
   const showIntro = isFirstVisit && !appReady;
+  const introComplete = !showIntro;
 
   return (
     <div className="min-h-dvh bg-[#F8F6F0] text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       {/* First-visit loader overlay */}
       {showIntro && <LoadingScreen />}
-      <ScrollToTop behavior="auto" />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/cases/:caseId" element={<CaseDetailPage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-      </Routes>
+      <div
+        className={`transition-opacity duration-700 ease-out delay-150 ${
+          introComplete ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        aria-hidden={!introComplete}
+      >
+        <ScrollToTop behavior="auto" />
+        <Routes>
+          <Route path="/" element={<HomePage introComplete={introComplete} />} />
+          <Route path="/cases/:caseId" element={<CaseDetailPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        </Routes>
+      </div>
     </div>
   );
 }

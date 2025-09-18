@@ -25,28 +25,48 @@ export function LoadingScreen() {
 
     // Fragment shader
     const fragmentShader = `
-      #define TWO_PI 6.2831853072
-      #define PI 3.14159265359
+  #define TWO_PI 6.2831853072
+  #define PI 3.14159265359
 
-      precision highp float;
-      uniform vec2 resolution;
-      uniform float time;
+  precision highp float;
+  uniform vec2 resolution;
+  uniform float time;
 
-      void main(void) {
-        vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-        float t = time*0.05;
-        float lineWidth = 0.002;
+  void main(void) {
+    vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+    float t = time * 0.05;
+    float lineWidth = 0.002;
 
-        vec3 color = vec3(0.0);
-        for(int j = 0; j < 3; j++){
-          for(int i=0; i < 5; i++){
-            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
-          }
-        }
-        
-        gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+    // Build the same ringy pattern, but as a single scalar accumulator
+    float accum = 0.0;
+    for (int j = 0; j < 3; j++) {
+      for (int i = 0; i < 5; i++) {
+        accum += lineWidth * float(i*i)
+          / abs(fract(t - 0.01*float(j) + float(i)*0.01)*5.0
+          - length(uv) + mod(uv.x+uv.y, 0.2));
       }
-    `;
+    }
+
+    // Normalize pattern -> 0..1
+    float v = clamp(accum * 0.6, 0.0, 1.0);
+
+    // Purple (#6A00FF) and Pink (#FF4FD8) in 0..1 sRGB
+    vec3 purple = vec3(0.4157, 0.0,    1.0);
+    vec3 pink   = vec3(1.0,    0.3098, 0.8471);
+
+    // Add a gentle sweep through the gradient using angle + time
+    float sweep = 0.5 + 0.5 * sin(atan(uv.y, uv.x) + time * 0.4);
+    float mixAmt = clamp(0.65 * v + 0.35 * sweep, 0.0, 1.0);
+
+    // Final color from purple → pink, modulated by pattern brightness
+    vec3 col = mix(purple, pink, mixAmt);
+    float brightness = smoothstep(0.0, 1.0, v * 1.2);
+    col *= brightness;
+
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
 
     // Initialize Three.js scene
     const camera = new THREE.Camera();
