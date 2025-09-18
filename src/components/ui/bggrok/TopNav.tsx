@@ -1,9 +1,12 @@
-import type { FC } from "react";
+import { useState, type FC } from "react";
+import ContactModal from "../../ContactModal";
 
 const TopNav: FC = () => {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="pointer-events-auto absolute inset-x-0 top-0 z-20">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+      <div className="container flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-8">
           {/* Logo */}
           <div className="h-8 w-8 rounded bg-white/10 ring-1 ring-white/15 flex items-center justify-center">
@@ -24,14 +27,16 @@ const TopNav: FC = () => {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <a
-            href="#"
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
             className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white/90 backdrop-blur hover:bg-white/15"
           >
             Skontaktuj się
-          </a>
+          </button>
         </div>
       </div>
+      <ContactModal open={open} onClose={() => setOpen(false)} />
     </div>
   );
 };
