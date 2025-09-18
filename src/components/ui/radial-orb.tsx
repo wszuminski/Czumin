@@ -11,6 +11,8 @@ interface RadialOrbitalTimelineProps {
   timelineData: CaseStudy[];
 }
 
+const normalizeAngle = (a: number) => ((a % 360) + 360) % 360; // FIX: prevent negative angles
+
 export default function RadialOrbitalTimeline({
   timelineData,
 }: RadialOrbitalTimelineProps) {
@@ -24,10 +26,10 @@ export default function RadialOrbitalTimeline({
   const [centerOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [activeNodeId, setActiveNodeId] = useState<number | null>(null);
 
-  // NEW: responsive radius + sizing
-  const [radius, setRadius] = useState<number>(180); // default desktop-ish
+  // responsive radius + sizing
+  const [radius, setRadius] = useState<number>(180);
   const [nodeSize, setNodeSize] = useState<number>(40);
-  const [orbitPadding, setOrbitPadding] = useState<number>(24); // visual padding so nodes don't touch edges
+  const [orbitPadding, setOrbitPadding] = useState<number>(24);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const orbitRef = useRef<HTMLDivElement>(null);
@@ -81,16 +83,14 @@ export default function RadialOrbitalTimeline({
     const loop = (now: number) => {
       const dt = now - last;
       last = now;
-      // ~6deg/sec (matches previous 0.3 every 50ms)
-      const deltaDegrees = (dt / 1000) * 6;
-      setRotationAngle((prev) => Number(((prev + deltaDegrees) % 360).toFixed(3)));
+      const deltaDegrees = (dt / 1000) * 6; // ~6deg/sec
+      setRotationAngle((prev) => normalizeAngle(prev + deltaDegrees)); // FIX: normalized
       rafId = requestAnimationFrame(loop);
     };
 
     if (autoRotate && viewMode === "orbital" && inView) {
       rafId = requestAnimationFrame(loop);
     }
-
     return () => cancelAnimationFrame(rafId);
   }, [autoRotate, viewMode, inView]);
 
@@ -115,27 +115,23 @@ export default function RadialOrbitalTimeline({
     if (media.matches) setAutoRotate(false);
   }, []);
 
-  // NEW: measure container and compute responsive sizes
+  // measure container and compute responsive sizes
   useEffect(() => {
     const computeSizes = () => {
       const el = containerRef.current;
       if (!el) return;
-
       const { width, height } = el.getBoundingClientRect();
       const minDim = Math.min(width, height);
 
-      // Treat < 640px width as mobile, < 1024 as tablet
       const isMobile = width < 640;
       const isTablet = width >= 640 && width < 1024;
 
-      // Orbit radius leaves padding so nodes + labels don't clip
       const baseRadius = Math.max(80, Math.floor((minDim - 2 * orbitPadding) / 2) - 40);
 
       let r = baseRadius;
-      let dot = 40; // node diameter
-
+      let dot = 40;
       if (isMobile) {
-        r = Math.min(baseRadius, 120); // tighten the orbit on small screens
+        r = Math.min(baseRadius, 120);
         dot = 32;
       } else if (isTablet) {
         r = Math.min(baseRadius, 160);
@@ -156,16 +152,14 @@ export default function RadialOrbitalTimeline({
 
   const centerViewOnNode = (nodeId: number) => {
     if (viewMode !== "orbital" || !nodeRefs.current[nodeId]) return;
-
     const nodeIndex = timelineData.findIndex((item) => item.id === nodeId);
     const totalNodes = timelineData.length;
     const targetAngle = (nodeIndex / totalNodes) * 360;
-
-    setRotationAngle(270 - targetAngle);
+    setRotationAngle(normalizeAngle(270 - targetAngle)); // FIX: normalized set
   };
 
   const calculateNodePosition = (index: number, total: number) => {
-    const angle = ((index / total) * 360 + rotationAngle) % 360;
+    const angle = normalizeAngle((index / total) * 360 + rotationAngle); // FIX: normalized
     const radian = (angle * Math.PI) / 180;
 
     const x = radius * Math.cos(radian) + centerOffset.x;
@@ -201,11 +195,11 @@ export default function RadialOrbitalTimeline({
     }
   };
 
-  // derived sizes based on nodeSize
-  const labelOffsetTop = nodeSize + 8; // px below node
-  const expandedScale = 1.4; // slightly reduced to avoid clipping on mobile
+  const labelOffsetTop = nodeSize + 8;
+  const expandedScale = 1.4;
+  const orbitDiameter = radius * 2;
 
-  const orbitDiameter = radius * 2; // used for the outline circle
+  const isRotating = autoRotate && viewMode === "orbital" && inView; // FIX: rotation flag
 
   return (
     <div
@@ -215,19 +209,21 @@ export default function RadialOrbitalTimeline({
     >
       <div className="relative w-full max-w-4xl h-full flex items-center justify-center px-3">
         <div
-          className="absolute w-full h-full flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center"
           ref={orbitRef}
           style={{
             perspective: "1000px",
+            // We keep centerOffset but now everything is centered; this acts as a fine nudge
             transform: `translate(${centerOffset.x}px, ${centerOffset.y}px)`,
             willChange: "transform",
             transformStyle: "preserve-3d",
           }}
         >
-          {/* core */}
+          {/* core (centered) */}
           <div
             className="absolute rounded-full flex items-center justify-center z-10 shadow-[0_0_60px_rgba(99,102,241,0.35)]"
             style={{
+              top: "50%", left: "50%", transform: "translate(-50%, -50%)", // FIX: center anchor
               width: nodeSize * 1.8,
               height: nodeSize * 1.8,
               background:
@@ -252,10 +248,11 @@ export default function RadialOrbitalTimeline({
             />
           </div>
 
-          {/* orbit outline (was fixed 24rem) */}
+          {/* orbit outline (centered) */}
           <div
             className="absolute rounded-full"
             style={{
+              top: "50%", left: "50%", transform: "translate(-50%, -50%)", // FIX: center anchor
               width: orbitDiameter,
               height: orbitDiameter,
               boxShadow:
@@ -273,10 +270,15 @@ export default function RadialOrbitalTimeline({
             const Icon = item.icon;
 
             const nodeStyle = {
-              transform: `translate(${position.x}px, ${position.y}px) translateZ(0)`,
+              top: "50%", left: "50%", // FIX: center anchor
+              transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) translateZ(0)`, // FIX: orbit around center
               zIndex: isExpanded ? 200 : position.zIndex,
               opacity: isExpanded ? 1 : position.opacity,
               willChange: "transform, opacity",
+              // FIX: don't transition transform when the orbit is auto-rotating (prevents oscillation/jitter)
+              transition: isRotating
+                ? "opacity 150ms linear"
+                : "transform 400ms ease, opacity 200ms ease",
             } as const;
 
             const dotStyle = {
@@ -284,14 +286,13 @@ export default function RadialOrbitalTimeline({
               height: nodeSize,
             } as const;
 
-            // Energy aura scales with node size; clamp to keep inside viewport
             const aura = Math.min(60, nodeSize + item.energy * 0.35);
 
             return (
               <div
                 key={item.id}
                 ref={(el) => (nodeRefs.current[item.id] = el)}
-                className="absolute transition-all duration-700 cursor-pointer"
+                className="absolute cursor-pointer" // FIX: removed transition-all here
                 style={nodeStyle}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -314,7 +315,7 @@ export default function RadialOrbitalTimeline({
                   ${isExpanded ? "bg-white text-black" : isRelated ? "bg-white/50 text-black" : "bg-black text-white"}
                   border-2 
                   ${isExpanded ? "border-white shadow-lg shadow-white/30" : isRelated ? "border-white animate-pulse" : "border-white/40"}
-                  transition-transform duration-300`}
+                  transition-transform duration-300`} // keep transform transition for expand only
                   style={{ ...dotStyle, transform: `scale(${isExpanded ? expandedScale : 1})` }}
                 >
                   <Icon size={Math.max(12, Math.floor(nodeSize * 0.4))} />
@@ -350,10 +351,10 @@ export default function RadialOrbitalTimeline({
                       <p>{item.content}</p>
 
                       <div className="mt-4 pt-3 border-t border-white/10">
-                      <div className="flex justify-between items-center text-xs mb-1">
-                        <span className="flex items-center">
-                          <Zap size={10} className="mr-1" />
-                          Poziom satysfakcji
+                        <div className="flex justify-between items-center text-xs mb-1">
+                          <span className="flex items-center">
+                            <Zap size={10} className="mr-1" />
+                            Poziom satysfakcji
                           </span>
                           <span className="font-mono">{item.energy}%</span>
                         </div>
@@ -376,7 +377,7 @@ export default function RadialOrbitalTimeline({
                                   key={relatedId}
                                   variant="outline"
                                   size="sm"
-                                  className="flex items-center h-6 px-2 py-0 text-[10px] sm:text-xs rounded-none border-white/20 bg-transparent hover:bg-white/10 text-white/80 hover:text-white transition-all"
+                                  className="flex items-center h-6 px-2 py-0 text-[10px] sm:text-xs rounded-3xl border-white/20 bg-transparent hover:bg-white/10 text-white/80 hover:text-white transition-all"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     toggleItem(relatedId);
@@ -392,13 +393,13 @@ export default function RadialOrbitalTimeline({
                       )}
 
                       <Button
-                        className="mt-4 w-full rounded-none bg-white text-black hover:bg-white/90"
+                        className="mt-4 w-full rounded-full bg-white text-black hover:bg-white/90"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/cases/${item.id}`);
                         }}
                       >
-                        See more
+                        Zobacz więcej
                       </Button>
                     </CardContent>
                   </Card>
