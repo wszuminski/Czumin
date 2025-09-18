@@ -1,10 +1,14 @@
 import type { FC } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 interface TopNavProps {
   onContactClick?: () => void;
 }
 
 const TopNav: FC<TopNavProps> = ({ onContactClick }) => {
+  const navItems = [
+    { label: "CASESTUDY", to: "/#case-study" },
+  ];
 
   return (
     <div className="pointer-events-auto absolute inset-x-0 top-0 z-20">
@@ -14,15 +18,31 @@ const TopNav: FC<TopNavProps> = ({ onContactClick }) => {
           <img src="/logo.czumin.png" alt="logo" className="w-12 h-12 rounded-full object-center object-cover" />
           {/* Links */}
           <nav className="hidden gap-6 text-sm text-white/70 md:flex">
-            {["CASESTUDY", "KONTAKT"].map((x) => (
-              <a
-                key={x}
-                href="#"
+            {navItems.map(({ label, to }) => (
+              <RouterLink
+                key={label}
+                to={to}
                 className="hover:text-white transition-colors"
               >
-                {x}
-              </a>
+                {label}
+              </RouterLink>
             ))}
+            {onContactClick ? (
+              <button
+                type="button"
+                onClick={onContactClick}
+                className="hover:text-white transition-colors"
+              >
+                KONTAKT
+              </button>
+            ) : (
+              <RouterLink
+                to="/#contact"
+                className="hover:text-white transition-colors"
+              >
+                KONTAKT
+              </RouterLink>
+            )}
           </nav>
         </div>
         <div className="flex items-center gap-3">

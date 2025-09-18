@@ -12,15 +12,75 @@ import CaseMediaGrid from "../components/case/CaseMediaGrid";
 import Footer from "../components/layout/Footer";
 import ContactModal from "../components/ContactModal";
 
+// Case-specific copy used to render concrete, sales-focused content
+const caseCopy: Record<number, {
+  goal: string;
+  result: string;
+  testimonial?: { text: string; author: string };
+  metrics?: string[];
+  focusLine?: string;
+}> = {
+  2: {
+    goal: "Szybka ścieżka kontaktu i czytelna oferta dla studia treningowego.",
+    result: "Z pierwszego ekranu widać zakres usług i wyraźne 'Umów trening'. Mniej klikania, więcej zapytań z jednego ekranu.",
+    testimonial: {
+      text: "Ze strony jestem bardzo zadowolony — zrobione szybko i dokładnie tak, jak chciałem. Na każdym etapie miałem info o zmianach. Najważniejsze: klienci łatwiej do mnie trafiają.",
+      author: "Właściciel Akademii Ruchu",
+    },
+    metrics: ["CTA nad foldem", "SEO: usługi + lokalizacja", "Szybkie ładowanie"],
+    focusLine: "Skupiliśmy się na widocznym CTA i prostej strukturze treści.",
+  },
+  3: {
+    goal: "Sprzedaż planów online bez zbędnych wiadomości na priv.",
+    result: "Wideo pod sekcją główną + opinie i metamorfozy, do tego płatności online — zakup w kilka kliknięć prosto na stronie.",
+    testimonial: {
+      text: "Najwięcej daje mi to, że ktoś po obejrzeniu wideo i opinii od razu kupuje plan. Mniej korespondencji, więcej transakcji z samej strony.",
+      author: "Eryk Jankowski, trener personalny",
+    },
+    metrics: ["Wideo pod sekcją główną ", "Opinie + metamorfozy", "Płatności online"],
+    focusLine: "Karta sprzedażowa z natychmiastową możliwością zakupu.",
+  },
+  5: {
+    goal: "Ułatwić poznanie oferty i zostawienie kontaktu.",
+    result: "Wizytówka spójna z Instagramem, jasna karta oferty ('Co dostajesz' i 'Dla kogo') oraz formularz w kluczowych miejscach — szybkie zapytania bez DMs.",
+    testimonial: {
+      text: "Wreszcie mogę pokazać ofertę w jednym miejscu i zbierać zapytania bez odsyłania ludzi do DM. Strona wygląda jak mój Instagram — klienci od razu kojarzą, że to ja.",
+      author: "Bartek Węgielnik, trener",
+    },
+    metrics: ["Wygląda jak Instagram", "Co dostajesz / Dla kogo", "Formularz w kluczowych miejscach"],
+    focusLine: "Szybkie rozpoznanie marki + prosty formularz kontaktu.",
+  },
+  4: {
+    goal: "Odejść od samych treningów 1:1 i sprzedawać plany online.",
+    result: "Najpierw dowody skuteczności (case'y, zdjęcia przed/po), potem ścieżka: 'Zobacz efekty' → 'Wybierz plan' → 'Wyceń indywidualnie'. Więcej konkretnych zapytań.",
+    testimonial: {
+      text: "Strona pokazuje efekty moich podopiecznych i prowadzi do wyboru planu. Dzięki temu mam mniej rozmów wstępnych, a więcej konkretnych zapytań o współpracę.",
+      author: "Marcel Kaczmarek, trener",
+    },
+    metrics: ["Case'y + przed/po", "Wybór planu", "Zapytanie o wycenę"],
+    focusLine: "Sekwencja: dowód → wybór → kontakt.",
+  },
+  1: {
+    goal: "Lepiej przedstawić ofertę i zapełnić grafik, by przejść na pełen etat.",
+    result: "Prosta strona-wizytówka z czytelną ofertą, CTA 'Umów konsultację' i sekcją FAQ. Po starcie: 150 odwiedzin, 15% kliknęło w kontakt.",
+    testimonial: {
+      text: "Potrzebowałem prostej strony, która pomoże mi zapełnić grafik. Po wdrożeniu widzę wyraźny wzrost kontaktów i łatwiejsze umawianie treningów.",
+      author: "Artur Stawiak, trener",
+    },
+    metrics: ["15% kliknięć w kontakt", "CTA 'Umów konsultację'", "Sekcja FAQ"],
+    focusLine: "Jasna oferta + mocne CTA + FAQ.",
+  },
+};
 
-const TrustSection = ({ caseId }: { caseId: number }) => {
+
+const TrustSection = ({ testimonial, metrics, focusLine }: { testimonial?: { text: string; author: string }; metrics?: string[]; focusLine?: string }) => {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const [contactOpen, setContactOpen] = useState(false);
   const faqs = [
-    { q: "Ile trwa realizacja projektu?", a: "Standardowa realizacja strony dla trenera/studia to 2–4 tygodnie, w zależności od zakresu. W pilnych przypadkach możemy pracować w trybie przyspieszonym." },
+    { q: "Ile trwa realizacja projektu?", a: "Standardowa realizacja strony to około 2 tygodnie, w zależności od zakresu. W pilnych przypadkach możemy pracować w trybie przyspieszonym." },
     { q: "Czy pomagasz w treściach i zdjęciach?", a: "Tak. Przygotuję prostą strukturę treści, doradzę w ujęciach i podpowiem co zrobić, by wypaść wiarygodnie i atrakcyjnie dla klienta." },
-    { q: "Jak wygląda płatność?", a: "Najczęściej 50% zaliczki na start i 50% po akceptacji efektu. Wystawiam fakturę." },
-    { q: "Czy po zakończeniu projektu mogę łatwo edytować stronę?", a: "Tak. Stawiam na komponentowe podejście i proste CMS-y, żeby edycja była szybka i bezpieczna." },
+    { q: "Jak wygląda płatność?", a: "Najczęściej 50% zaliczki na start i 50% po akceptacji efektu. " },
+    { q: "Czy po zakończeniu projektu mogę łatwo edytować stronę?", a: "Tak. Po zakończeniu projektu zapewniam stały kontakt w razie chęci wprowadzenia zmian lub poprawek" },
   ];
   return (
     <section className="relative mt-12 text-white">
@@ -41,16 +101,16 @@ const TrustSection = ({ caseId }: { caseId: number }) => {
               </div>
               <blockquote className="relative rounded-xl border border-white/10 bg-black/40 p-4 text-sm leading-relaxed text-white/80">
                 <Quote className="absolute -left-3 -top-3 h-6 w-6 text-white/20" />
-                „Współpraca była konkretna i szybka. Strona wygląda nowocześnie, a zapytania od klientów wzrosły w pierwszym miesiącu.”
-                <footer className="mt-3 text-xs text-white/60">— Zadowolony klient, branża fitness</footer>
+                {testimonial?.text || "Współpraca przebiegła sprawnie, a strona realnie pomaga w pozyskiwaniu kontaktów."}
+                <footer className="mt-3 text-xs text-white/60">— {testimonial?.author || "Klient z branży fitness"}</footer>
               </blockquote>
               <div className="flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white/80">+36% zapytań</span>
-                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white/80">1.3s LCP</span>
-                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white/80">98/100 Lighthouse</span>
+                {(metrics && metrics.length > 0 ? metrics : ["Szybkie ładowanie", "Czytelna oferta", "Wyraźne CTA"]).map((m) => (
+                  <span key={m} className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white/80">{m}</span>
+                ))}
               </div>
               <div className="mt-2 rounded-lg border border-white/10 bg-gradient-to-r from-indigo-500/10 via-transparent to-violet-500/10 p-4">
-                <p className="text-xs text-white/70">Każdy projekt dopasowuję do celu biznesowego. Dla case {caseId} skupiliśmy się na czytelnej ofercie i szybkiej ścieżce kontaktu.</p>
+                <p className="text-xs text-white/70">{focusLine || `Dla tego projektu skupiliśmy się na czytelnej ofercie i szybkim kontakcie.`}</p>
               </div>
             </CardContent>
           </Card>
@@ -139,6 +199,8 @@ export function CaseDetailPage() {
     .map((relatedId) => caseStudies.find((item) => item.id === relatedId))
     .filter(Boolean) as CaseStudy[];
 
+  const copy = caseCopy[caseStudy.id];
+
   return (
     <section className="relative min-h-dvh bg-black text-white px-4 pt-20 pb-12 sm:pt-24 sm:pb-16">
       <TopNav />
@@ -187,15 +249,11 @@ export function CaseDetailPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-lg border border-white/10 bg-black/40 p-4">
                 <h2 className="text-xs uppercase tracking-wider text-white/60">Cel projektu</h2>
-                <p className="mt-2 text-sm text-white/80">
-                  Skoncentrowany na personalizowanych rozwiązaniach dla trenerów i studiów ruchu.
-                </p>
+                <p className="mt-2 text-sm text-white/80">{copy?.goal || "Skoncentrowany na osobach trenujących — prosta ścieżka do kontaktu."}</p>
               </div>
               <div className="rounded-lg border border-white/10 bg-black/40 p-4">
                 <h2 className="text-xs uppercase tracking-wider text-white/60">Rezultat</h2>
-                <p className="mt-2 text-sm text-white/80">
-                  Kompletny pakiet brandingowy oraz modułowa strona z naciskiem na doświadczenie użytkownika.
-                </p>
+                <p className="mt-2 text-sm text-white/80">{copy?.result || "Lekka strona z wyraźnym CTA i odpowiedziami na najczęstsze pytania."}</p>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -242,7 +300,7 @@ export function CaseDetailPage() {
         <CaseMediaGrid caseId={caseStudy.id} />
       </div>
       {/* Trust + FAQ + CTA section */}
-      <TrustSection caseId={caseStudy.id} />
+      <TrustSection testimonial={copy?.testimonial} metrics={copy?.metrics} focusLine={copy?.focusLine} />
       <Footer />
     </section>
   );

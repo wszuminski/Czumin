@@ -2,7 +2,7 @@ import type { FC } from "react";
 
 const AboutSection: FC = () => {
   return (
-    <section className="relative overflow-hidden bg-black py-24 sm:py-28">
+    <section id="o-nas" className="relative overflow-hidden bg-black py-24 sm:py-28">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_0%,rgba(99,102,241,0.18),rgba(17,24,39,0)_60%)]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-indigo-500/40 via-fuchsia-500/40 to-sky-500/40" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent via-black/90 to-black" />

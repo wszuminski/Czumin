@@ -44,12 +44,12 @@ const CaseMediaGrid: FC<CaseMediaGridProps> = ({ caseId }) => {
               key={item.id}
               className="overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-xl shadow-black/30"
             >
-              <div className="relative">
+              <div className="relative flex aspect-[18/10] items-center justify-center bg-black/30">
                 <img
                   src={item.src}
                   alt={item.alt}
                   loading="lazy"
-                  className="aspect-[4/3] h-auto w-full object-cover"
+                  className="h-full w-full object-contain"
                 />
                 {/* subtle gradient edge */}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-transparent to-violet-500/10 mix-blend-screen" />

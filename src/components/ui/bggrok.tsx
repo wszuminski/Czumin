@@ -1,20 +1,16 @@
-import { useState } from "react";
 import BackgroundBase from "./bggrok/BackgroundBase";
 import RightBloom from "./bggrok/RightBloom";
 import NebulaBackground from "./bggrok/NebulaBackground";
 import TopNav from "./bggrok/TopNav";
 import BigTitle from "./bggrok/BigTitle";
-import ContactModal from "../ContactModal";
 
 interface GrokHeroProps {
   introComplete?: boolean;
+  onContactClick?: () => void;
 }
 
-export default function GrokHero({ introComplete = true }: GrokHeroProps) {
+export default function GrokHero({ introComplete = true, onContactClick }: GrokHeroProps) {
   const ready = introComplete;
-  const [contactOpen, setContactOpen] = useState(false);
-  const openContact = () => setContactOpen(true);
-  const closeContact = () => setContactOpen(false);
 
   return (
     <section
@@ -25,8 +21,8 @@ export default function GrokHero({ introComplete = true }: GrokHeroProps) {
       <BackgroundBase />
       <RightBloom />
       <NebulaBackground fadeTop={64} fadeBottom={72} />
-      <TopNav onContactClick={openContact} />
-      <BigTitle onContactClick={openContact} />
+      <TopNav onContactClick={onContactClick} />
+      <BigTitle onContactClick={onContactClick} />
       {/* Bottom chevron aligned to nav/container left edge */}
       <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 opacity-80">
         <div className="container px-4">
@@ -47,7 +43,6 @@ export default function GrokHero({ introComplete = true }: GrokHeroProps) {
           </svg>
         </div>
       </div>
-      <ContactModal open={contactOpen} onClose={closeContact} />
     </section>
   );
 }

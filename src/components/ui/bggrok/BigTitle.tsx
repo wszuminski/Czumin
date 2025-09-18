@@ -21,8 +21,8 @@ const BigTitle: FC<BigTitleProps> = ({ onContactClick }) => {
           Czumin
         </h1>
 
-        <div className="mt-8 flex w-full flex-col items-center gap-5 text-base text-white/70 sm:flex-row sm:justify-center sm:gap-8">
-          <p className="max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
+        <div className="mt-8 flex w-full flex-col items-center gap-5 text-base text-white/70 text-center">
+          <p className="max-w-xl text-sm leading-relaxed text-white/60 text-center sm:text-base">
             Projektujemy i wdrażamy doświadczenia cyfrowe, które łączą świetny design z mierzalnymi
             efektami. Od pierwszej koncepcji po wsparcie po starcie działamy jako Twój partner w rozwoju.
           </p>

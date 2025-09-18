@@ -25,7 +25,6 @@ export const caseMedia: Record<number, string[]> = {
   // 3: Eryk Jankowski
   3: [
     "/ErykJankowskiHero.webp",
-    "/ErykJankowskiOMnie.webp",
     "/ErykJankowskiCzemuJa.webp",
     "/ErykJankowskiOfertaCennik.webp",
     "/ErykJankowskiPrezentacjaVideo.webp",
@@ -51,7 +50,6 @@ export const caseMedia: Record<number, string[]> = {
     "/BartekWegielnikFAQ.webp",
     "/BartekWegielnikOpinie.webp",
     "/BartekWegielnikGaleria.webp",
-    "/BartekWegielnikKontakt.webp",
   ],
 };
 
