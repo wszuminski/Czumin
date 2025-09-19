@@ -152,8 +152,8 @@ export default function ContactModal({ open, onClose, formspreeFormId, subject =
               </div>
 
               {/* footer */}
-              <div className="mt-5 flex items-center justify-between">
-                <p className="text-[11px] text-white/50">Wysyłając formularz akceptujesz kontakt mailowy. Odpowiadam zwykle w 24h.</p>
+              <div className="mt-5 flex flex-wrap items-center gap-3 sm:flex-nowrap sm:justify-between">
+                <p className="text-[11px] text-white/50 sm:pr-6">Wysyłając formularz akceptujesz kontakt mailowy. Odpowiadam zwykle w 24h.</p>
                 <Button type="submit" disabled={status === "submitting"} className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 text-white border-0 hover:from-indigo-400 hover:to-violet-400 shadow-lg shadow-indigo-500/20">
                   {status === "submitting" ? (
                     <>
