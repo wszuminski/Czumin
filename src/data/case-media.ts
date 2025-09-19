@@ -1,5 +1,5 @@
 // Mapping of case study IDs to their public images
-// Paths are relative to the public/ folder and should start with '/'
+// Paths are relative to the public/ folder an should start with '/'
 
 export const caseMedia: Record<number, string[]> = {
   // 1: Artur Stawiak
