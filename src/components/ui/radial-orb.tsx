@@ -1,6 +1,6 @@
 // radial-orb.tsx (optimized, visuals unchanged)
 // @ts-nocheck
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from "react";
 import { ArrowRight, Link, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { CaseStudy } from "../../data/case-studies";
@@ -21,7 +21,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
   const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [viewMode] = useState<"orbital">("orbital");
-  const [rotationAngle, setRotationAngle] = useState<number>(0);
+  const rotationAngleRef = useRef<number>(0);
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
   const [inView, setInView] = useState<boolean>(true);
   const [pulseEffect, setPulseEffect] = useState<Record<number, boolean>>({});
@@ -36,6 +36,8 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
   const containerRef = useRef<HTMLDivElement>(null);
   const orbitRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const expandedItemsRef = useRef<Record<number, boolean>>(expandedItems);
+  const isRotatingRef = useRef<boolean>(false);
 
   // Precompute maps for O(1) lookups
   const idToIndex = useMemo(() => {
@@ -50,14 +52,79 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
     return m;
   }, [timelineData]);
 
+  const titleById = useMemo(() => {
+    const m = new Map<number, string>();
+    timelineData.forEach((item) => m.set(item.id, item.title));
+    return m;
+  }, [timelineData]);
+
+  const totalNodes = timelineData.length || 1;
+
   const handleContainerClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === containerRef.current || e.target === orbitRef.current) {
       setExpandedItems({});
       setActiveNodeId(null);
       setPulseEffect({});
       setAutoRotate(true);
+      isRotatingRef.current = true;
     }
   }, []);
+
+  const calculateNodePosition = useCallback(
+    (index: number, total: number, rotationAngle: number) => {
+      const angle = normalizeAngle((index / total) * 360 + rotationAngle);
+      const radian = (angle * Math.PI) / 180;
+
+      const x = radius * Math.cos(radian) + centerOffset.x;
+      const y = radius * Math.sin(radian) + centerOffset.y;
+
+      const zIndex = Math.round(100 + 50 * Math.cos(radian));
+      const opacity = Math.max(0.45, Math.min(1, 0.4 + 0.6 * ((1 + Math.sin(radian)) / 2)));
+
+      return { x, y, angle, zIndex, opacity };
+    },
+    [radius, centerOffset]
+  );
+
+  const updateNodes = useCallback(
+    (angleOverride?: number) => {
+      const nextAngle = normalizeAngle(angleOverride ?? rotationAngleRef.current);
+      rotationAngleRef.current = nextAngle;
+      if (!timelineData.length) return;
+      const total = timelineData.length;
+
+      timelineData.forEach((item, index) => {
+        const node = nodeRefs.current[item.id];
+        if (!node) return;
+
+        const { x, y, zIndex, opacity } = calculateNodePosition(
+          index,
+          total,
+          nextAngle
+        );
+
+        node.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) translateZ(0)`;
+        const isExpanded = !!expandedItemsRef.current[item.id];
+        node.style.zIndex = `${isExpanded ? 200 : zIndex}`;
+        node.style.opacity = isExpanded ? "1" : `${opacity}`;
+        node.style.transition = isRotatingRef.current
+          ? "opacity 150ms linear"
+          : "transform 400ms ease, opacity 200ms ease";
+      });
+    },
+    [timelineData, calculateNodePosition]
+  );
+
+  const centerViewOnNode = useCallback(
+    (nodeId: number) => {
+      if (viewMode !== "orbital" || !idToIndex.has(nodeId)) return;
+      const nodeIndex = idToIndex.get(nodeId)!;
+      const targetAngle = (nodeIndex / totalNodes) * 360;
+      const next = normalizeAngle(270 - targetAngle);
+      updateNodes(next);
+    },
+    [viewMode, idToIndex, totalNodes, updateNodes]
+  );
 
   const toggleItem = useCallback((id: number) => {
     setExpandedItems((prev) => {
@@ -71,6 +138,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
       if (!prev[id]) {
         setActiveNodeId(id);
         setAutoRotate(false);
+        isRotatingRef.current = false;
 
         const relatedItems = relatedMap.get(id) ?? [];
         const newPulseEffect: Record<number, boolean> = {};
@@ -81,37 +149,55 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
       } else {
         setActiveNodeId(null);
         setAutoRotate(true);
+        isRotatingRef.current = true;
         setPulseEffect({});
       }
 
       return newState;
     });
-  }, [relatedMap]);
+  }, [relatedMap, centerViewOnNode]);
 
-  // rAF loop throttled to ~30 FPS to limit React updates
+  const isRotating = autoRotate && viewMode === "orbital" && inView;
+
+  // rAF loop throttled to ~30 FPS, mutating DOM styles to avoid component re-renders
   useEffect(() => {
     let rafId = 0;
     let last = performance.now();
     let acc = 0;
-    const frameInterval = 1000 / 30; // target fps
+    const frameInterval = 1000 / 30;
 
     const loop = (now: number) => {
       const dt = now - last;
       last = now;
       acc += dt;
       if (acc >= frameInterval) {
-        const deltaDegrees = (acc / 1000) * 6; // ~6deg/sec
-        setRotationAngle((prev) => normalizeAngle(prev + deltaDegrees));
+        const deltaDegrees = (acc / 1000) * 6;
+        updateNodes(rotationAngleRef.current + deltaDegrees);
         acc = 0;
       }
       rafId = requestAnimationFrame(loop);
     };
 
-    if (autoRotate && viewMode === "orbital" && inView) {
+    if (isRotating) {
+      last = performance.now();
       rafId = requestAnimationFrame(loop);
     }
     return () => cancelAnimationFrame(rafId);
-  }, [autoRotate, viewMode, inView]);
+  }, [isRotating, updateNodes]);
+
+  useLayoutEffect(() => {
+    updateNodes(rotationAngleRef.current);
+  }, [updateNodes]);
+
+  useEffect(() => {
+    expandedItemsRef.current = expandedItems;
+    updateNodes();
+  }, [expandedItems, updateNodes]);
+
+  useEffect(() => {
+    isRotatingRef.current = isRotating;
+    updateNodes();
+  }, [isRotating, updateNodes]);
 
   // Observe visibility to pause animations offscreen
   useEffect(() => {
@@ -165,27 +251,6 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
     return () => window.removeEventListener("resize", computeSizes);
   }, [orbitPadding]);
 
-  const centerViewOnNode = (nodeId: number) => {
-    if (viewMode !== "orbital" || !idToIndex.has(nodeId)) return;
-    const nodeIndex = idToIndex.get(nodeId)!;
-    const totalNodes = timelineData.length;
-    const targetAngle = (nodeIndex / totalNodes) * 360;
-    setRotationAngle(normalizeAngle(270 - targetAngle));
-  };
-
-  const calculateNodePosition = (index: number, total: number) => {
-    const angle = normalizeAngle((index / total) * 360 + rotationAngle);
-    const radian = (angle * Math.PI) / 180;
-
-    const x = radius * Math.cos(radian) + centerOffset.x;
-    const y = radius * Math.sin(radian) + centerOffset.y;
-
-    const zIndex = Math.round(100 + 50 * Math.cos(radian));
-    const opacity = Math.max(0.45, Math.min(1, 0.4 + 0.6 * ((1 + Math.sin(radian)) / 2)));
-
-    return { x, y, angle, zIndex, opacity };
-  };
-
   const isRelatedToActive = (itemId: number): boolean => {
     if (!activeNodeId) return false;
     const rel = relatedMap.get(activeNodeId) ?? [];
@@ -207,8 +272,6 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
   const labelOffsetTop = nodeSize + 8;
   const expandedScale = 1.4;
   const orbitDiameter = radius * 2;
-
-  const isRotating = autoRotate && viewMode === "orbital" && inView;
 
   return (
     <div
@@ -277,8 +340,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
             }}
           />
 
-          {timelineData.map((item, index) => {
-            const position = calculateNodePosition(index, timelineData.length);
+          {timelineData.map((item) => {
             const isExpanded = expandedItems[item.id];
             const isRelated = isRelatedToActive(item.id);
             const isPulsing = pulseEffect[item.id];
@@ -287,11 +349,8 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
             const nodeStyle = {
               top: "50%",
               left: "50%",
-              transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px) translateZ(0)`,
-              zIndex: isExpanded ? 200 : position.zIndex,
-              opacity: isExpanded ? 1 : position.opacity,
+              transform: "translate(-50%, -50%)",
               willChange: "transform, opacity",
-              transition: isRotating ? "opacity 150ms linear" : "transform 400ms ease, opacity 200ms ease",
             } as const;
 
             const dotStyle = { width: nodeSize, height: nodeSize } as const;
@@ -334,7 +393,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                     ? "bg-white/50 text-black border-white animate-pulse"
                     : "bg-black text-white border-white/40"}
                   `}
-                  style={{ ...dotStyle, transform: `scale(${isExpanded ? 1.4 : 1})` }}
+                  style={{ ...dotStyle, transform: `scale(${isExpanded ? expandedScale : 1})` }}
                 >
                   <img
                     src={item.logo}
@@ -406,7 +465,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                                   toggleItem(relatedId);
                                 }}
                               >
-                                {timelineData.find((i) => i.id === relatedId)?.title}
+                                {titleById.get(relatedId) ?? ""}
                                 <ArrowRight size={8} className="ml-1 text-white/60" />
                               </Button>
                             ))}

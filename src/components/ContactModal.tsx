@@ -12,7 +12,7 @@ interface ContactModalProps {
   subject?: string;
 }
 
-export default function ContactModal({ open, onClose, formspreeFormId, subject = "Nowa wiadomość ze strony" }: ContactModalProps) {
+export default function ContactModal({ open, onClose, formspreeFormId ="xvzzzzbw", subject = "Nowa wiadomość ze strony" }: ContactModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");

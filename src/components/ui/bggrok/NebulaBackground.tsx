@@ -214,13 +214,22 @@ const NebulaBackground: FC<NebulaProps> = ({
       alpha: true,
       premultipliedAlpha: false,
       antialias: true,
+      powerPreference: "high-performance",
       dpr: Math.min(window.devicePixelRatio || 1, 2),
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
 
+    const canvas = gl.canvas;
+    canvas.style.pointerEvents = "none";
+    canvas.style.display = "block";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.contain = "layout paint size";
+    canvas.style.willChange = "transform";
+
     container.innerHTML = "";
-    container.appendChild(gl.canvas);
+    container.appendChild(canvas);
 
     // Geometry + program
     const geometry = new Triangle(gl);
@@ -281,53 +290,72 @@ const NebulaBackground: FC<NebulaProps> = ({
     };
 
     // ---- Size & uniforms ----
-    const updateUniformsForSize = () => {
+    const host = container.parentElement ?? container;
+    const sizeState = { width: 0, height: 0 };
+    let resizeRaf: number | null = null;
+    let pendingSize: { width: number; height: number } | null = null;
+
+    const updateUniformsForSize = (widthPx: number, heightPx: number) => {
       const dw = gl.drawingBufferWidth;
       const dh = gl.drawingBufferHeight;
       program.uniforms.iResolution.value.set(dw, dh, dw / Math.max(1, dh));
 
-      // Convert px fades to normalized coords (canvas-relative)
       const topNorm = Math.min(0.49, Math.max(0, fadeTop / Math.max(1, dh)));
       const bottomCapNorm = Math.max(
         0.0,
-        Math.min(0.99, 1 - fadeBottom / Math.max(1, dh) - 0.01) // ~99% minus fade
+        Math.min(0.99, 1 - fadeBottom / Math.max(1, dh) - 0.01)
       );
 
       program.uniforms.uTopY.value = topNorm;
-      program.uniforms.uBottomCap.value = Math.max(
-        topNorm + 0.05,
-        bottomCapNorm
-      );
+      program.uniforms.uBottomCap.value = Math.max(topNorm + 0.05, bottomCapNorm);
       program.uniforms.uBandFeather.value = Math.min(
         0.12,
         Math.max(0.025, 0.06)
       );
 
-      // Expose band y (px) as CSS variables on the host section
-      const host = container.parentElement ?? container;
-      const rect = container.getBoundingClientRect();
-      const { yTop, yBot, yCtr } = computeBandY(anchorX);
-      host.style.setProperty("--grok-band-top", `${yTop * rect.height}px`);
-      host.style.setProperty("--grok-band-bottom", `${yBot * rect.height}px`);
-      host.style.setProperty("--grok-band-center", `${yCtr * rect.height}px`);
+      if (host) {
+        const { yTop, yBot, yCtr } = computeBandY(anchorX);
+        host.style.setProperty("--grok-band-top", `${yTop * heightPx}px`);
+        host.style.setProperty("--grok-band-bottom", `${yBot * heightPx}px`);
+        host.style.setProperty("--grok-band-center", `${yCtr * heightPx}px`);
+      }
     };
 
-    const setSize = (w: number, h: number) => {
-      renderer.setSize(Math.max(1, Math.floor(w)), Math.max(1, Math.floor(h)));
-      (gl.canvas.style as any).width = `${w}px`;
-      (gl.canvas.style as any).height = `${h}px`;
-      updateUniformsForSize();
+    const applySize = (width: number, height: number, force = false) => {
+      const w = Math.max(1, Math.floor(width));
+      const h = Math.max(1, Math.floor(height));
+      if (!force && w === sizeState.width && h === sizeState.height) return;
+      sizeState.width = w;
+      sizeState.height = h;
+      renderer.setSize(w, h);
+      updateUniformsForSize(w, h);
+    };
+
+    const flushPendingSize = () => {
+      if (!pendingSize) return;
+      applySize(pendingSize.width, pendingSize.height);
+      pendingSize = null;
+    };
+
+    const scheduleSize = (width: number, height: number) => {
+      pendingSize = { width, height };
+      if (resizeRaf != null) return;
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = null;
+        flushPendingSize();
+      });
     };
 
     const ro = new ResizeObserver((entries) => {
       const r = entries[0]?.contentRect;
-      if (r) setSize(r.width, r.height);
+      if (!r) return;
+      scheduleSize(r.width, r.height);
     });
     ro.observe(container);
 
     // initial size
     const rect0 = container.getBoundingClientRect();
-    setSize(rect0.width, rect0.height);
+    applySize(rect0.width, rect0.height, true);
 
     // visibility / in-view control
     const onVis = () => {
@@ -339,11 +367,11 @@ const NebulaBackground: FC<NebulaProps> = ({
 
     const io = new IntersectionObserver(
       (entries) => {
-        inViewRef.current = !!entries[0]?.isIntersecting;
+        inViewRef.current = Boolean(entries[0]?.isIntersecting);
         if (visibleRef.current && inViewRef.current) start();
         else stop();
       },
-      { root: null, threshold: 0 }
+      { root: null, threshold: 0, rootMargin: "0px 0px 200px 0px" }
     );
     io.observe(container);
 
@@ -357,6 +385,7 @@ const NebulaBackground: FC<NebulaProps> = ({
     };
     const start = () => {
       if (rafRef.current != null) return;
+      flushPendingSize();
       rafRef.current = requestAnimationFrame(frame);
     };
     const stop = () => {
@@ -371,6 +400,10 @@ const NebulaBackground: FC<NebulaProps> = ({
     // cleanup
     return () => {
       stop();
+      if (resizeRaf != null) {
+        cancelAnimationFrame(resizeRaf);
+        resizeRaf = null;
+      }
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
