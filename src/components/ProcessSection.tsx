@@ -6,40 +6,40 @@ const processSteps = [
     category: "DISCOVERY",
     title: "Bezpłatna konsultacja i analiza potrzeb",
     description:
-      "Zanim napiszemy pierwszą linijkę kodu, musimy zrozumieć Twój biznes. Podczas bezpłatnej rozmowy poznajemy cele, grupę docelową i wyzwania. Nie jesteśmy fabryką stron – każdy projekt traktujemy indywidualnie, bo wiemy, że gotowe szablony nie budują przewagi konkurencyjnej.",
+      "Zanim napiszemy pierwszą linijkę kodu, musimy zrozumieć Twój biznes. Podczas bezpłatnej rozmowy poznajemy cele, grupę docelową i wyzwania. Nie jesteśmy fabryką stronkażdy projekt traktujemy indywidualnie, bo wiemy, że gotowe szablony nie budują przewagi konkurencyjnej.",
     highlight: "Dlaczego to ważne?",
     highlightText:
-      "Większość agencji przeskakuje ten etap i od razu proponuje rozwiązania. My najpierw słuchamy – dzięki temu nie płacisz za funkcje, których nie potrzebujesz.",
+      "Większość agencji przeskakuje ten etap i od razu proponuje rozwiązania. My najpierw słuchamydzięki temu nie płacisz za funkcje, których nie potrzebujesz.",
   },
   {
     step: "KROK 02",
     category: "STRATEGIA",
     title: "Plan działania i architektura projektu",
     description:
-      "Na podstawie analizy tworzymy szczegółowy plan: struktura strony, user flow, technologie i harmonogram. Otrzymujesz przejrzysty dokument z celami, kamieniami milowymi i kosztorysem – bez ukrytych opłat i niespodzianek w trakcie projektu.",
+      "Na podstawie analizy tworzymy szczegółowy plan: struktura strony, user flow, technologie i harmonogram. Otrzymujesz przejrzysty dokument z celami, kamieniami milowymi i kosztorysembez ukrytych opłat i niespodzianek w trakcie projektu.",
     highlight: "Co nas wyróżnia?",
     highlightText:
-      "Pracujemy w modelu fixed price z jasno określonym zakresem. Wiesz dokładnie, co otrzymasz i za ile – nie ma 'dodatkowych' faktur na koniec projektu.",
+      "Pracujemy w modelu fixed price z jasno określonym zakresem. Wiesz dokładnie, co otrzymasz i za ilenie ma 'dodatkowych' faktur na koniec projektu.",
   },
   {
     step: "KROK 03",
     category: "DESIGN",
     title: "Projektowanie interfejsu i doświadczenia",
     description:
-      "Tworzymy makiety i projekt wizualny, który nie tylko dobrze wygląda, ale przede wszystkim konwertuje. Każdy element – od typografii po rozmieszczenie CTA – jest przemyślany pod kątem celów biznesowych. Pokazujemy Ci projekt w Figma z pełną interakcją.",
+      "Tworzymy makiety i projekt wizualny, który nie tylko dobrze wygląda, ale przede wszystkim konwertuje. Każdy elementod typografii po rozmieszczenie CTAjest przemyślany pod kątem celów biznesowych. Pokazujemy Ci projekt w Figma z pełną interakcją.",
     highlight: "Różnica w podejściu",
     highlightText:
-      "Nie kopiujemy trendów dla samych trendów. Projektujemy z myślą o Twoim użytkowniku i Twoich celach – czy to lead generation, sprzedaż, czy budowanie marki.",
+      "Nie kopiujemy trendów dla samych trendów. Projektujemy z myślą o Twoim użytkowniku i Twoich celachczy to lead generation, sprzedaż, czy budowanie marki.",
   },
   {
     step: "KROK 04",
     category: "DEVELOPMENT",
     title: "Budowa w nowoczesnych technologiach",
     description:
-      "Strony budujemy w React i Next.js – technologiach używanych przez największe firmy świata. To oznacza błyskawiczne ładowanie, doskonałe SEO i łatwość rozbudowy w przyszłości. Kod jest czysty, udokumentowany i w pełni Twój po zakończeniu projektu.",
+      "Strony budujemy w React i Next.jstechnologiach używanych przez największe firmy świata. To oznacza błyskawiczne ładowanie, doskonałe SEO i łatwość rozbudowy w przyszłości. Kod jest czysty, udokumentowany i w pełni Twój po zakończeniu projektu.",
     highlight: "Przewaga technologiczna",
     highlightText:
-      "Statyczne strony na WordPress ładują się 3-5 sekund. Nasze rozwiązania – poniżej sekundy. W erze mobile first i wymagających algorytmów Google, to nie detal – to fundament sukcesu.",
+      "Statyczne strony na WordPress ładują się 3-5 sekund. Nasze rozwiązaniaponiżej sekundy. W erze mobile first i wymagających algorytmów Google, to nie detalto fundament sukcesu.",
   },
   {
     step: "KROK 05",
@@ -49,14 +49,14 @@ const processSteps = [
       "Przed uruchomieniem każdy projekt przechodzi rygorystyczne testy: responsywność, wydajność, dostępność (WCAG), SEO i bezpieczeństwo. Używamy narzędzi takich jak Lighthouse i WebPageTest, aby upewnić się, że Twoja strona działa idealnie wszędzie.",
     highlight: "Standard, nie dodatek",
     highlightText:
-      "Testy to u nas standard, nie opcja za dopłatą. Nie oddajemy projektów 'na 90%' — uruchamiamy tylko wtedy, gdy wszystko działa bez zastrzeżeń.",
+      "Testy to u nas standard, nie opcja za dopłatą. Nie oddajemy projektów 'na 90%'uruchamiamy tylko wtedy, gdy wszystko działa bez zastrzeżeń.",
   },
   {
     step: "KROK 06",
     category: "LAUNCH",
     title: "Uruchomienie i wsparcie po starcie",
     description:
-      "Dzień premiery to nie koniec współpracy – to początek nowego etapu. Konfigurujemy hosting, SSL, analitykę i monitorujemy pierwsze tygodnie działania. Otrzymujesz też 30 dni bezpłatnego wsparcia na poprawki i drobne zmiany.",
+      "Dzień premiery to nie koniec współpracyto początek nowego etapu. Konfigurujemy hosting, SSL, analitykę i monitorujemy pierwsze tygodnie działania. Otrzymujesz też 30 dni bezpłatnego wsparcia na poprawki i drobne zmiany.",
     highlight: "Partnerstwo, nie transakcja",
     highlightText:
       "Po uruchomieniu oferujemy pakiety wsparcia i rozwoju. Wielu klientów zostaje z nami na lata, bo wiedzą, że mogą na nas polegać.",
@@ -147,7 +147,7 @@ const ProcessSection: FC = () => {
                 Gotowy, żeby zacząć?
               </h3>
               <p className="mt-4 max-w-lg text-base leading-relaxed text-white/50">
-                Umów się na bezpłatną konsultację. Porozmawiamy o Twoim projekcie, odpowiemy na pytania i przedstawimy wstępną wycenę – bez zobowiązań.
+                Umów się na bezpłatną konsultację. Porozmawiamy o Twoim projekcie, odpowiemy na pytania i przedstawimy wstępną wycenębez zobowiązań.
               </p>
             </div>
             <div className="flex items-center lg:justify-end">

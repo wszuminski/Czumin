@@ -98,12 +98,12 @@ export function PrivacyPolicyPage() {
               Firma hostingowa w celu zapewnienia niezawodności technicznej prowadzi logi na poziomie serwera. Zapisowi mogą podlegać:
             </p>
             <ul>
-              <li>zasoby określone identyfikatorem URL (adresy żądanych zasobów – stron, plików),</li>
+              <li>zasoby określone identyfikatorem URL (adresy żądanych zasobówstron, plików),</li>
               <li>czas nadejścia zapytania,</li>
               <li>czas wysłania odpowiedzi,</li>
-              <li>nazwę stacji klienta – identyfikacja realizowana przez protokół HTTP,</li>
+              <li>nazwę stacji klientaidentyfikacja realizowana przez protokół HTTP,</li>
               <li>informacje o błędach jakie nastąpiły przy realizacji transakcji HTTP,</li>
-              <li>adres URL strony poprzednio odwiedzanej przez użytkownika (referer link) – w przypadku gdy przejście do Serwisu nastąpiło przez odnośnik,</li>
+              <li>adres URL strony poprzednio odwiedzanej przez użytkownika (referer link)w przypadku gdy przejście do Serwisu nastąpiło przez odnośnik,</li>
               <li>informacje o przeglądarce użytkownika,</li>
               <li>informacje o adresie IP,</li>
               <li>informacje diagnostyczne związane z procesem samodzielnego zamawiania usług poprzez rejestratory na stronie,</li>
@@ -203,7 +203,7 @@ export function PrivacyPolicyPage() {
           </section>
 
           <section id="zarzadzanie-cookies" className="mb-8">
-            <h2>9. Zarządzanie plikami cookies – jak w praktyce wyrażać i cofać zgodę?</h2>
+            <h2>9. Zarządzanie plikami cookiesjak w praktyce wyrażać i cofać zgodę?</h2>
             <p>
               Jeśli użytkownik nie chce otrzymywać plików cookies, może zmienić ustawienia przeglądarki. Zastrzegamy, że wyłączenie obsługi plików cookies niezbędnych dla procesów uwierzytelniania, bezpieczeństwa, utrzymania preferencji użytkownika może utrudnić, a w skrajnych przypadkach może uniemożliwić korzystanie ze stron www
             </p>

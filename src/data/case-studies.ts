@@ -61,7 +61,7 @@ export const caseStudies: CaseStudy[] = [
     id: 5,
     title: "Bartek Węgielnik",
     date: "Sierpień 2025",
-    content: "Wizytówka jak Instagram Bartka: jasna karta oferty i formularz w kluczowych miejscach – szybkie zapytania bez DM.",
+    content: "Wizytówka jak Instagram Bartka: jasna karta oferty i formularz w kluczowych miejscachszybkie zapytania bez DM.",
     category: "Design + Strona",
     logo: "/LogoBartek.png",
     relatedIds: [],

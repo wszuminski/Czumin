@@ -21,20 +21,20 @@ const caseCopy: Record<number, {
   focusLine?: string;
 }> = {
   2: {
-    intro: "Strona dla studia treningowego Akademia Ruchu – skupiona na szybkim kontakcie i czytelnej ofercie. Zaprojektowana tak, by klient od razu widział zakres usług i mógł umówić trening jednym kliknięciem.",
+    intro: "Strona dla studia treningowego Akademia Ruchuskupiona na szybkim kontakcie i czytelnej ofercie. Zaprojektowana tak, by klient od razu widział zakres usług i mógł umówić trening jednym kliknięciem.",
     goal: "Szybka ścieżka kontaktu i czytelna oferta dla studia treningowego.",
     result: "Z pierwszego ekranu widać zakres usług i wyraźne 'Umów trening'. Mniej klikania, więcej zapytań z jednego ekranu.",
     testimonial: {
-      text: "Ze strony jestem bardzo zadowolony – zrobione szybko i dokładnie tak, jak chciałem. Na każdym etapie miałem info o zmianach. Najważniejsze: klienci łatwiej do mnie trafiają.",
+      text: "Ze strony jestem bardzo zadowolonyzrobione szybko i dokładnie tak, jak chciałem. Na każdym etapie miałem info o zmianach. Najważniejsze: klienci łatwiej do mnie trafiają.",
       author: "Właściciel Akademii Ruchu",
     },
     metrics: ["CTA nad foldem", "SEO: usługi + lokalizacja", "Szybkie ładowanie"],
     focusLine: "Skupiliśmy się na widocznym CTA i prostej strukturze treści.",
   },
   3: {
-    intro: "Strona sprzedażowa dla trenera Eryka Jankowskiego – nastawiona na sprzedaż planów online bez konieczności pisania na priv. Wideo, opinie i płatności w jednym miejscu.",
+    intro: "Strona sprzedażowa dla trenera Eryka Jankowskiegonastawiona na sprzedaż planów online bez konieczności pisania na priv. Wideo, opinie i płatności w jednym miejscu.",
     goal: "Sprzedaż planów online bez zbędnych wiadomości na priv.",
-    result: "Wideo pod sekcją główną + opinie i metamorfozy, do tego płatności online – zakup w kilka kliknięć prosto na stronie.",
+    result: "Wideo pod sekcją główną + opinie i metamorfozy, do tego płatności onlinezakup w kilka kliknięć prosto na stronie.",
     testimonial: {
       text: "Najwięcej daje mi to, że ktoś po obejrzeniu wideo i opinii od razu kupuje plan. Mniej korespondencji, więcej transakcji z samej strony.",
       author: "Eryk Jankowski, trener personalny",
@@ -43,18 +43,18 @@ const caseCopy: Record<number, {
     focusLine: "Karta sprzedażowa z natychmiastową możliwością zakupu.",
   },
   5: {
-    intro: "Wizytówka online dla trenera Bartka Węgielnika – spójna z jego Instagramem, by klienci od razu rozpoznawali markę. Jasna oferta i formularz kontaktu zamiast DMs.",
+    intro: "Wizytówka online dla trenera Bartka Węgielnikaspójna z jego Instagramem, by klienci od razu rozpoznawali markę. Jasna oferta i formularz kontaktu zamiast DMs.",
     goal: "Ułatwić poznanie oferty i zostawienie kontaktu.",
-    result: "Wizytówka spójna z Instagramem, jasna karta oferty ('Co dostajesz' i 'Dla kogo') oraz formularz w kluczowych miejscach – szybkie zapytania bez DMs.",
+    result: "Wizytówka spójna z Instagramem, jasna karta oferty ('Co dostajesz' i 'Dla kogo') oraz formularz w kluczowych miejscachszybkie zapytania bez DMs.",
     testimonial: {
-      text: "Wreszcie mogę pokazać ofertę w jednym miejscu i zbierać zapytania bez odsyłania ludzi do DM. Strona wygląda jak mój Instagram – klienci od razu kojarzą, że to ja.",
+      text: "Wreszcie mogę pokazać ofertę w jednym miejscu i zbierać zapytania bez odsyłania ludzi do DM. Strona wygląda jak mój Instagramklienci od razu kojarzą, że to ja.",
       author: "Bartek Węgielnik, trener",
     },
     metrics: ["Wygląda jak Instagram", "Co dostajesz / Dla kogo", "Formularz w kluczowych miejscach"],
     focusLine: "Szybkie rozpoznanie marki + prosty formularz kontaktu.",
   },
   4: {
-    intro: "Strona dla trenera Marcela Kaczmarka – przejście od treningów 1:1 do sprzedaży planów online. Skupiona na pokazaniu efektów podopiecznych i prowadzeniu do wyboru planu.",
+    intro: "Strona dla trenera Marcela Kaczmarkaprzejście od treningów 1:1 do sprzedaży planów online. Skupiona na pokazaniu efektów podopiecznych i prowadzeniu do wyboru planu.",
     goal: "Odejść od samych treningów 1:1 i sprzedawać plany online.",
     result: "Najpierw dowody skuteczności (case'y, zdjęcia przed/po), potem ścieżka: 'Zobacz efekty' → 'Wybierz plan' → 'Wyceń indywidualnie'. Więcej konkretnych zapytań.",
     testimonial: {
@@ -65,7 +65,7 @@ const caseCopy: Record<number, {
     focusLine: "Sekwencja: dowód → wybór → kontakt.",
   },
   1: {
-    intro: "Wizytówka dla trenera Artura Stawiaka – prosta strona z czytelną ofertą i CTA 'Umów konsultację'. Zaprojektowana, by zapełnić grafik i ułatwić przejście na pełen etat.",
+    intro: "Wizytówka dla trenera Artura Stawiakaprosta strona z czytelną ofertą i CTA 'Umów konsultację'. Zaprojektowana, by zapełnić grafik i ułatwić przejście na pełen etat.",
     goal: "Lepiej przedstawić ofertę i zapełnić grafik, by przejść na pełen etat.",
     result: "Prosta strona wizytówka z czytelną ofertą, CTA 'Umów konsultację' i sekcją FAQ. Po starcie: 150 odwiedzin, 15% kliknęło w kontakt.",
     testimonial: {
@@ -80,7 +80,7 @@ const caseCopy: Record<number, {
     goal: "Stworzyć prostą wizytówkę w dwóch językach, która buduje zaufanie w międzynarodowym transporcie.",
     result: "Minimalistyczny design, jasna struktura oferty i formularz kontaktowy. Strona pełni rolę wiarygodnej wizytówki dla zagranicznych kontrahentów.",
     testimonial: {
-      text: "Zależało nam na czymś prostym i eleganckim. Strona idealnie spełnia swoją rolę – klienci od razu widzą czym się zajmujemy i mają łatwy kontakt.",
+      text: "Zależało nam na czymś prostym i eleganckim. Strona idealnie spełnia swoją rolęklienci od razu widzą czym się zajmujemy i mają łatwy kontakt.",
       author: "Właściciel Top Global Plus",
     },
     metrics: ["Dwa języki", "Minimalistyczny design", "Prosty kontakt"],
@@ -92,7 +92,7 @@ const caseCopy: Record<number, {
 const imageDescriptions = [
   {
     title: "Sekcja hero z wyraźnym CTA",
-    description: "Pierwsza rzecz, którą widzi odwiedzający. Duże, czytelne CTA 'Umów trening' lub 'Skontaktuj się' – bez rozpraszaczy. Kluczowy przekaz marki i propozycja wartości od razu widoczne."
+    description: "Pierwsza rzecz, którą widzi odwiedzający. Duże, czytelne CTA 'Umów trening' lub 'Skontaktuj się'bez rozpraszaczy. Kluczowy przekaz marki i propozycja wartości od razu widoczne."
   },
   {
     title: "Prezentacja oferty i wartości",
@@ -104,15 +104,15 @@ const imageDescriptions = [
   },
   {
     title: "Opinie i dowody społeczne",
-    description: "Realne opinie klientów i efekty współpracy. Zdjęcia przed/po, cytaty i oceny — wszystko, co potwierdza skuteczność i buduje wiarygodność."
+    description: "Realne opinie klientów i efekty współpracy. Zdjęcia przed/po, cytaty i ocenywszystko, co potwierdza skuteczność i buduje wiarygodność."
   },
   {
     title: "Struktura treści i nawigacja",
-    description: "Przejrzysty układ strony, który prowadzi odwiedzającego przez kolejne sekcje. Logiczna ścieżka od zainteresowania do kontaktu – bez zbędnych kliknięć."
+    description: "Przejrzysty układ strony, który prowadzi odwiedzającego przez kolejne sekcje. Logiczna ścieżka od zainteresowania do kontaktubez zbędnych kliknięć."
   },
   {
     title: "Sekcja kontaktowa",
-    description: "Prosty formularz kontaktu lub przycisk do umówienia wizyty. Bez zbędnych pól – tylko to, co potrzebne. Wyraźne CTA i szybka ścieżka do działania."
+    description: "Prosty formularz kontaktu lub przycisk do umówienia wizyty. Bez zbędnych póltylko to, co potrzebne. Wyraźne CTA i szybka ścieżka do działania."
   },
 ];
 
@@ -331,7 +331,7 @@ const TrustSection = ({ testimonial, metrics, focusLine }: TrustSectionProps) =>
                   {testimonial?.text || "Współpraca przebiegła sprawnie, a strona realnie pomaga w pozyskiwaniu kontaktów."}
                 </p>
                 <footer className="mt-4 text-sm text-white/50">
-                  – {testimonial?.author || "Klient z branży fitness"}
+                 {testimonial?.author || "Klient z branży fitness"}
                 </footer>
               </blockquote>
 
@@ -469,7 +469,7 @@ export function CaseDetailPage() {
       <VisualShowcase caseId={caseStudy.id} />
 
       <ProjectDetails
-        goal={copy?.goal || "Skoncentrowany na osobach trenujących — prosta ścieżka do kontaktu."}
+        goal={copy?.goal || "Skoncentrowany na osobach trenującychprosta ścieżka do kontaktu."}
         result={copy?.result || "Lekka strona z wyraźnym CTA i odpowiedziami na najczęstsze pytania."}
       />
 

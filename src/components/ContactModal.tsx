@@ -107,7 +107,7 @@ export default function ContactModal({ open, onClose, formspreeFormId ="xvzzzzbw
             <div className="flex items-start justify-between p-5">
               <div>
                 <h2 id="contact-title" className="text-xl font-semibold text-white tracking-tight">Skontaktuj się</h2>
-                <p className="text-xs text-white/60 mt-1">Masz projekt lub pytanie? Napisz wiadomość – odpowiem najszybciej jak się da.</p>
+                <p className="text-xs text-white/60 mt-1">Masz projekt lub pytanie? Napisz wiadomośćodpowiem najszybciej jak się da.</p>
               </div>
               <button onClick={onClose} className="inline-flex items-center justify-center rounded-full p-2 text-white/70 hover:text-white hover:bg-white/10 transition">
                 <X size={18} aria-hidden="true" />
