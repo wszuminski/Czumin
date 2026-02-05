@@ -20,7 +20,7 @@ const VERT = /* glsl */ `
 // Grok-like wedge; right-side glow shifted to bluish–purple.
 // Band grows with x and can be curved/tilted via uniforms.
 const FRAG = /* glsl */ `
-  precision highp float;
+  precision mediump float;
   varying vec2 vUv;
   uniform float iTime;
   uniform vec3  iResolution;   // (w, h, aspect)
@@ -35,58 +35,43 @@ const FRAG = /* glsl */ `
   uniform float uBotBow;       // bottom edge bows downward to right
   uniform float uTilt;         // linear tilt (-0.2..0.2)
 
-  // -------- noise --------
+  // -------- noise (optimized) --------
   float hash(vec2 p){
-    p = fract(p*vec2(123.34,456.21));
-    p += dot(p,p+45.32);
-    return fract(p.x*p.y);
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
   }
   float noise(vec2 p){
     vec2 i=floor(p); vec2 f=fract(p);
-    float a=hash(i);
-    float b=hash(i+vec2(1.0,0.0));
-    float c=hash(i+vec2(0.0,1.0));
-    float d=hash(i+vec2(1.0,1.0));
     vec2 u=f*f*(3.0-2.0*f);
-    return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+    return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x),
+               mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y);
   }
+  // Reduced from 4 to 3 octaves
   float fbm(vec2 p){
-    float v=0.0; float a=0.5; mat2 m=mat2(1.6,1.2,-1.2,1.6);
-    for(int i=0;i<4;i++){ v+=a*noise(p); p=m*p; a*=0.5; }
+    float v=0.0; float a=0.5;
+    mat2 m=mat2(1.6,1.2,-1.2,1.6);
+    for(int i=0;i<3;i++){ v+=a*noise(p); p=m*p; a*=0.5; }
     return v;
   }
+  // Simplified wispy - single fbm call with time offset
   float wispy(vec2 p, float t){
-    vec2 q = p;
-    q += 0.35*vec2(fbm(p*1.2 + vec2(0.9*t, -0.6*t)), fbm(p*1.2 - vec2(0.6*t, 0.9*t)));
-    float n1 = fbm(q*1.1 - vec2(0.25*t, -0.35*t));
-    float n2 = fbm(q*2.3 + vec2(0.15*t, 0.21*t));
-    return mix(n1, n2, 0.5);
+    vec2 q = p + 0.3*vec2(sin(t*0.7), cos(t*0.5));
+    return fbm(q*1.2 + vec2(0.2*t, -0.15*t));
   }
 
-  // Elliptical off-canvas-ish light for the right “blob”
+  // Elliptical off-canvas-ish light for the right "blob"
   float rightLight(vec2 uv){
-    vec2 lp = vec2(1.18, 0.50);              // push further right
-    vec2 squeeze = vec2(1.25, 0.85);         // stretch horizontally
+    vec2 lp = vec2(1.18, 0.50);
+    vec2 squeeze = vec2(1.25, 0.85);
     float d = length((uv - lp) * squeeze);
-    float core = exp(-pow(d*10.5, 2.0));
-    float tail = pow(max(0.0, 1.0 - d*1.08), 2.8);
-    return clamp(core*1.7 + tail*1.1, 0.0, 2.0);
+    float core = exp(-d*d*110.0);
+    float tail = max(0.0, 1.0 - d*1.08);
+    tail = tail*tail*tail;
+    return min(core*1.7 + tail*1.1, 2.0);
   }
 
-  // Tangential streaking around the blob
+  // Simplified streak - no loop, direct calculation
   float haloStreak(vec2 uv, vec2 st, float t){
-    vec2 lp = vec2(1.18, 0.50);
-    vec2 toL = uv - lp;
-    vec2 tangent = normalize(vec2(-toL.y, toL.x) + 1e-5);
-    float acc = 0.0, wsum = 0.0;
-    for(int i=-1;i<=1;i++){
-      float fi = float(i);
-      float w = 1.0 - abs(fi)/2.0;
-      vec2 ofs = tangent * fi * 0.015;
-      float s = wispy(st + ofs*1.8, t + fi*0.05);
-      acc += s*w; wsum += w;
-    }
-    return (acc/wsum);
+    return wispy(st, t);
   }
 
   vec3 tonemap(vec3 x){
@@ -210,13 +195,13 @@ const NebulaBackground: FC<NebulaProps> = ({
     const container = ref.current;
     if (!container) return;
 
-    // Renderer
+    // Renderer - optimized for performance
     const renderer = new Renderer({
       alpha: true,
       premultipliedAlpha: false,
-      antialias: true,
+      antialias: false, // Disable AA for perf - blur hides artifacts
       powerPreference: "high-performance",
-      dpr: Math.min(window.devicePixelRatio || 1, 1.5),
+      dpr: Math.min(window.devicePixelRatio || 1, 1.0), // Cap at 1.0 for perf
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
@@ -376,8 +361,8 @@ const NebulaBackground: FC<NebulaProps> = ({
     );
     io.observe(container);
 
-    // render loop – throttled to ~30 fps
-    const FRAME_INTERVAL = 1000 / 30;
+    // render loop – throttled to ~24 fps (smooth enough for ambient bg)
+    const FRAME_INTERVAL = 1000 / 24;
     let lastFrameTime = 0;
     const frame = (t: number) => {
       rafRef.current = requestAnimationFrame(frame);

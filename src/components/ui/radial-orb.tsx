@@ -275,17 +275,17 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
 
   return (
     <div
-      className="w-full min-h-dvh flex flex-col justify-start bg-black overflow-hidden"
+      className="w-full bg-black overflow-hidden"
       ref={containerRef}
       onClick={handleContainerClick}
       style={{ touchAction: "manipulation" }}
     >
-      <div className="container text-center pt-12 sm:pt-16 pb-0 px-4 -mb-12 sm:-mb-20">
+      <div className="container text-center pt-12 sm:pt-16 pb-4 px-4">
         <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">Wybrane realizacje</h2>
         <p className="mt-2 text-xl sm:text-2xl text-white/70">Jedno zdanie o projektach, klarownie i konkretnie.</p>
       </div>
 
-      <div className="relative w-full max-w-4xl flex-1 mx-auto flex items-center justify-center px-3">
+      <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center px-3" style={{ height: `${Math.max(400, radius * 2 + nodeSize * 2 + 120)}px` }}>
         <div
           className="absolute inset-0 flex items-center justify-center"
           ref={orbitRef}

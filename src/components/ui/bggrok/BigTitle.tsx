@@ -29,7 +29,7 @@ const BigTitle: FC<BigTitleProps> = ({ onContactClick }) => {
           <CTAHeroButton
             onClick={onContactClick}
             className="pointer-events-auto"
-            label="Porozmawiajmy"
+            label="Chcę więcej klientów"
           />
         </div>
       </div>
