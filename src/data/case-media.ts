@@ -51,5 +51,13 @@ export const caseMedia: Record<number, string[]> = {
     "/BartekWegielnikOpinie.webp",
     "/BartekWegielnikGaleria.webp",
   ],
+
+  // 6: Top Global Plus
+  6: [
+    "/TopGlobalPlusHero.png",
+    "/TopGlobalPlusAbout.png",
+    "/TopGlobalPlusProcess.png",
+    "/TopGlobaPlusContact.png",
+  ],
 };
 

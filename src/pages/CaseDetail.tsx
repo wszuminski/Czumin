@@ -75,6 +75,17 @@ const caseCopy: Record<number, {
     metrics: ["15% kliknięć w kontakt", "CTA 'Umów konsultację'", "Sekcja FAQ"],
     focusLine: "Jasna oferta + mocne CTA + FAQ.",
   },
+  6: {
+    intro: "Minimalistyczna strona wizytówka dla międzynarodowej firmy transportowej Top Global Plus. Projekt skupiony na czytelności w dwóch językach i prostym, biznesowym przekazie.",
+    goal: "Stworzyć prostą wizytówkę w dwóch językach, która buduje zaufanie w międzynarodowym transporcie.",
+    result: "Minimalistyczny design, jasna struktura oferty i formularz kontaktowy. Strona pełni rolę wiarygodnej wizytówki dla zagranicznych kontrahentów.",
+    testimonial: {
+      text: "Zależało nam na czymś prostym i eleganckim. Strona idealnie spełnia swoją rolę – klienci od razu widzą czym się zajmujemy i mają łatwy kontakt.",
+      author: "Właściciel Top Global Plus",
+    },
+    metrics: ["Dwa języki", "Minimalistyczny design", "Prosty kontakt"],
+    focusLine: "Prosta, dwujęzyczna wizytówka biznesowa.",
+  },
 };
 
 // Rich image descriptions for gallery

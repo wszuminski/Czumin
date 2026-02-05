@@ -1,7 +1,7 @@
 // radial-orb.tsx (optimized, visuals unchanged)
 // @ts-nocheck
 import { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from "react";
-import { ArrowRight, Link, Zap } from "lucide-react";
+import { ArrowRight, Link, Zap, Box } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { CaseStudy } from "../../data/case-studies";
 import { Badge } from "../ui/badge";
@@ -282,7 +282,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
     >
       <div className="container text-center pt-12 sm:pt-16 pb-0 px-4 -mb-12 sm:-mb-20">
         <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">Wybrane realizacje</h2>
-        <p className="mt-2 text-xl sm:text-2xl text-white/70">Jedno zdanie o projektach — klarownie i konkretnie.</p>
+        <p className="mt-2 text-xl sm:text-2xl text-white/70">Jedno zdanie o projektach, klarownie i konkretnie.</p>
       </div>
 
       <div className="relative w-full max-w-4xl flex-1 mx-auto flex items-center justify-center px-3">
@@ -395,14 +395,23 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                   `}
                   style={{ ...dotStyle, transform: `scale(${isExpanded ? expandedScale : 1})` }}
                 >
-                  <img
-                    src={item.logo}
-                    alt={`${item.title} logo`}
-                    style={{ padding: logoPadding, boxSizing: "border-box" }}
-                    className="pointer-events-none select-none h-full w-full rounded-full object-contain"
-                    draggable={false}
-                    decoding="async"
-                  />
+                  {item.logo.startsWith("icon:") ? (
+                    <div
+                      className="flex h-full w-full items-center justify-center bg-[#064e3b]" /* emerald-900 like */
+                      style={{ padding: logoPadding }}
+                    >
+                      {item.logo === "icon:Box" && <Box className="text-emerald-400" size="60%" />}
+                    </div>
+                  ) : (
+                    <img
+                      src={item.logo}
+                      alt={`${item.title} logo`}
+                      style={{ padding: logoPadding, boxSizing: "border-box" }}
+                      className="pointer-events-none select-none h-full w-full rounded-full object-contain"
+                      draggable={false}
+                      decoding="async"
+                    />
+                  )}
                 </div>
 
                 <div
