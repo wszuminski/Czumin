@@ -280,7 +280,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
       onClick={handleContainerClick}
       style={{ touchAction: "manipulation" }}
     >
-      <div className="container text-center pt-20 sm:pt-24 pb-4 px-4">
+      <div className="container text-center pt-12 sm:pt-16 pb-0 px-4 -mb-12 sm:-mb-20">
         <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight">Wybrane realizacje</h2>
         <p className="mt-2 text-xl sm:text-2xl text-white/70">Jedno zdanie o projektach — klarownie i konkretnie.</p>
       </div>
@@ -360,8 +360,8 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
             const auraBackground = isExpanded
               ? "radial-gradient(circle, rgba(168,85,247,0.45) 0%, rgba(129,140,248,0.22) 45%, rgba(56,189,248,0.12) 70%, rgba(17,24,39,0) 90%)"
               : isRelated
-              ? "radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0) 80%)"
-              : "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)";
+                ? "radial-gradient(circle, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0) 80%)"
+                : "radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)";
 
             return (
               <div
@@ -388,10 +388,10 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                 <div
                   className={`rounded-full flex items-center justify-center border-2 transition-transform duration-300 overflow-hidden
                   ${isExpanded
-                    ? "bg-black text-white border-violet-200 shadow-[0_0_35px_rgba(168,85,247,0.55)]"
-                    : isRelated
-                    ? "bg-white/50 text-black border-white animate-pulse"
-                    : "bg-black text-white border-white/40"}
+                      ? "bg-black text-white border-violet-200 shadow-[0_0_35px_rgba(168,85,247,0.55)]"
+                      : isRelated
+                        ? "bg-white/50 text-black border-white animate-pulse"
+                        : "bg-black text-white border-white/40"}
                   `}
                   style={{ ...dotStyle, transform: `scale(${isExpanded ? expandedScale : 1})` }}
                 >

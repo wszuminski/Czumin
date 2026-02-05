@@ -220,28 +220,29 @@ const CTAHeroButton = ({
         </motion.div>
       </motion.button>
 
-      {[...Array(6)].map((_, index) => (
-        <motion.div
-          // We intentionally reuse the visuals from the original button.
-          key={index}
-          className="absolute w-1 h-1 rounded-full opacity-0"
-          style={{
-            left: `${20 + index * 10}%`,
-            top: `${30 + (index % 3) * 20}%`,
-            background: index % 2 === 0 ? "#ec4899" : "#818cf8",
-            boxShadow:
-              index % 2 === 0
-                ? "0 0 10px rgba(236, 72, 153, 0.8)"
-                : "0 0 10px rgba(129, 140, 248, 0.8)",
-          }}
-          animate={{
-            opacity: isHovered ? [0, 1, 0] : 0,
-            scale: isHovered ? [0, 1.5, 0] : 0,
-            y: isHovered ? [0, -20, 0] : 0,
-          }}
-          transition={{ duration: 2, delay: index * 0.2, repeat: Infinity }}
-        />
-      ))}
+      {isHovered &&
+        [...Array(6)].map((_, index) => (
+          <motion.div
+            key={index}
+            className="absolute w-1 h-1 rounded-full"
+            style={{
+              left: `${20 + index * 10}%`,
+              top: `${30 + (index % 3) * 20}%`,
+              background: index % 2 === 0 ? "#ec4899" : "#818cf8",
+              boxShadow:
+                index % 2 === 0
+                  ? "0 0 10px rgba(236, 72, 153, 0.8)"
+                  : "0 0 10px rgba(129, 140, 248, 0.8)",
+            }}
+            initial={{ opacity: 0, scale: 0, y: 0 }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1.5, 0],
+              y: [0, -20, 0],
+            }}
+            transition={{ duration: 2, delay: index * 0.2, repeat: Infinity }}
+          />
+        ))}
     </div>
   );
 };

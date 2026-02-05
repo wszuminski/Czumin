@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import GrokHero from "../components/ui/bggrok";
 import AboutSection from "../components/AboutSection";
+import ProcessSection from "../components/ProcessSection";
 import { RadialCaseStudy } from "../components/RadialCaseStudy";
 import Footer from "../components/layout/Footer";
 import ContactModal from "../components/ContactModal";
@@ -18,6 +19,7 @@ export function HomePage({ introComplete = true }: HomePageProps) {
     <main className="bg-black text-white">
       <GrokHero introComplete={introComplete} onContactClick={openContact} />
       <AboutSection />
+      <ProcessSection />
       <RadialCaseStudy />
       <Footer onContactClick={openContact} />
       <ContactModal open={contactOpen} onClose={closeContact} />

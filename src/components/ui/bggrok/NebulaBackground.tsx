@@ -52,7 +52,7 @@ const FRAG = /* glsl */ `
   }
   float fbm(vec2 p){
     float v=0.0; float a=0.5; mat2 m=mat2(1.6,1.2,-1.2,1.6);
-    for(int i=0;i<6;i++){ v+=a*noise(p); p=m*p; a*=0.5; }
+    for(int i=0;i<4;i++){ v+=a*noise(p); p=m*p; a*=0.5; }
     return v;
   }
   float wispy(vec2 p, float t){
@@ -79,9 +79,9 @@ const FRAG = /* glsl */ `
     vec2 toL = uv - lp;
     vec2 tangent = normalize(vec2(-toL.y, toL.x) + 1e-5);
     float acc = 0.0, wsum = 0.0;
-    for(int i=-2;i<=2;i++){
+    for(int i=-1;i<=1;i++){
       float fi = float(i);
-      float w = 1.0 - abs(fi)/3.0;
+      float w = 1.0 - abs(fi)/2.0;
       vec2 ofs = tangent * fi * 0.015;
       float s = wispy(st + ofs*1.8, t + fi*0.05);
       acc += s*w; wsum += w;
@@ -216,7 +216,7 @@ const NebulaBackground: FC<NebulaProps> = ({
       premultipliedAlpha: false,
       antialias: true,
       powerPreference: "high-performance",
-      dpr: Math.min(window.devicePixelRatio || 1, 2),
+      dpr: Math.min(window.devicePixelRatio || 1, 1.5),
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
@@ -376,13 +376,17 @@ const NebulaBackground: FC<NebulaProps> = ({
     );
     io.observe(container);
 
-    // render loop
+    // render loop – throttled to ~30 fps
+    const FRAME_INTERVAL = 1000 / 30;
+    let lastFrameTime = 0;
     const frame = (t: number) => {
+      rafRef.current = requestAnimationFrame(frame);
       if (startRef.current === 0) startRef.current = t;
+      if (t - lastFrameTime < FRAME_INTERVAL) return;
+      lastFrameTime = t;
       const elapsed = (t - startRef.current) * 0.001;
       program.uniforms.iTime.value = elapsed;
       renderer.render({ scene: mesh });
-      rafRef.current = requestAnimationFrame(frame);
     };
     const start = () => {
       if (rafRef.current != null) return;
